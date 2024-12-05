@@ -1,0 +1,26 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsc -b && node dist/index.js",
+    "dev2": "tsc -b && node dist/index2.js",
+    "dev3": "tsc -b && node dist/index3.js",
+    "dev4": "tsc -b && node dist/index4.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@ai-sdk/google": "^1.0.5",
+    "ai": "^4.0.12",
+    "dotenv": "^16.4.7",
+    "fs": "^0.0.1-security",
+    "typescript": "^5.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1"
+  }
+}

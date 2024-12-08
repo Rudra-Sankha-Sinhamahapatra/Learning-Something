@@ -45,6 +45,7 @@ const generateChunks = (input: string): string[] => {
   };
   
   export const findRelevantContent = async (userQuery: string) => {
+    // console.log("Query received:", userQuery);
     const userQueryEmbedded = await generateEmbedding(userQuery);
     const similarity = sql<number>`1 - (${cosineDistance(
       embeddings.embedding,
@@ -56,5 +57,7 @@ const generateChunks = (input: string): string[] => {
       .where(gt(similarity, 0.5))
       .orderBy(t => desc(t.similarity))
       .limit(4);
-    return similarGuides;
+
+      // console.log("Similar results:", similarGuides); 
+      return similarGuides.length > 0 ? similarGuides : "Sorry, I don't know.";
   };

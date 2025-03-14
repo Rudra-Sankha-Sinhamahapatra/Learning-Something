@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.btn {
+    @apply bg-black text-white px-4 py-2 rounded-lg font-medium inline-flex justify-center tracking-tight;
+}
+
+.btn-primary {
+    @apply bg-black text-white;
+}
+
+.btn-text {
+    @apply text-black bg-transparent;
+}
+
+.logo-ticker-image {
+    @apply h-8 w-auto;
+}

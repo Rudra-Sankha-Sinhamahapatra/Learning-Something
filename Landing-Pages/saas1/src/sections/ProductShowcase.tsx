@@ -12,10 +12,10 @@ export const ProductShowcase = () => {
             <div className="text-sm inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight mb-6">
               Boost your productivity
             </div>
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight bg-gradient-to-b from-black to-[#001E80] text-transparent bg-clip-text">
+            <h1 className="heading-1">
               A more effective way to track progress
             </h1>
-            <p className="text-xl text-[#010D3E] tracking-tight mt-6">
+            <p className="description-1">
               Celebrate the joy of accomplishment with an app designed to track
               your progress and motivate your efforts
             </p>

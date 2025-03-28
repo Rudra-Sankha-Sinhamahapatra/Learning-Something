@@ -25,3 +25,7 @@
 .description-1  {
     @apply text-xl text-center text-[#010D3E] tracking-tight mt-6  text-[22px] leading-[-30px]
 }
+
+.card {
+    @apply rounded-3xl p-6 md:p-8  lg:p-10 shadow-[0_7px_14px_#EAEAEA] border border-[#222222]/10 max-w-xs w-full 
+}

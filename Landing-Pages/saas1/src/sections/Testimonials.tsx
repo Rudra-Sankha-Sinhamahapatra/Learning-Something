@@ -1,3 +1,4 @@
+import Image from "next/image";
 import avatar1 from "@/assets/avatar-1.png";
 import avatar2 from "@/assets/avatar-2.png";
 import avatar3 from "@/assets/avatar-3.png";
@@ -7,6 +8,8 @@ import avatar6 from "@/assets/avatar-6.png";
 import avatar7 from "@/assets/avatar-7.png";
 import avatar8 from "@/assets/avatar-8.png";
 import avatar9 from "@/assets/avatar-9.png";
+import test from "node:test";
+import { twMerge } from "tailwind-merge";
 
 const testimonials = [
   {
@@ -65,6 +68,42 @@ const testimonials = [
   },
 ];
 
+const firstColumn = testimonials.slice(0,3);
+const secondColumn = testimonials.slice(3,6);
+const thirdColumn = testimonials.slice(6,9);
+
+const TestimonialsColumn = (props: {className?: string, testimonials: typeof testimonials}) => (
+  <div className={twMerge("flex flex-col  gap-8 mt-12 [mask-image:linear-gradient(to_bottom,transparent,black_25%,black_75%,transparent)]", props.className)}>
+          {props.testimonials.map(({text,imageSrc,name,username})=>(
+            <div className="card" key={username}>
+              <div>{text}</div>
+              <div className="mt-6 flex flex-row gap-2">
+                <Image src={imageSrc} alt={name} width={40} height={40} className="rounded-full" />
+                <div className="flex flex-col">
+                  <div className="font-medium tracking-tight leading-5">{name}</div>
+                  <div className="tracking-tight leading-5">{username}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+)
+
 export const Testimonials = () => {
-  return null;
+  return <section className="md:py-20 py-8 bg-white">
+    <div className="container">
+      <div className="flex flex-col items-center justify-center">
+    <div className="text-sm inline-flex border border-[#222]/10 px-3 py-1 rounded-lg tracking-tight">
+          Version 2.0 is here
+        </div>
+        <h1 className="heading-1 mt-6">What Our Users Say</h1>
+        <p className="description-1 w-full max-w-[550px]">From Intuitive design to powerful features, our app has become an essential tool for users around the world.</p>
+        </div>
+        <div className="flex max-md:flex-col justify-center gap-8">
+        <TestimonialsColumn testimonials={firstColumn} />
+        <TestimonialsColumn testimonials={secondColumn} className="hidden md:flex" />
+        <TestimonialsColumn testimonials={thirdColumn} className="hidden lg:flex" />
+        </div>
+    </div>
+  </section>;
 };

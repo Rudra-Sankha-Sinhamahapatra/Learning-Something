@@ -36,7 +36,7 @@ export const Footer = () => {
         <div className="inline-flex rounded-md relative before:absolute before:content-[''] before:top-2 before:left-0 before:right-0 before:bottom-0 before:blur-xl before:bg-[linear-gradient(to_right,#F87BFF,#FB92CF,#FFDD99,#C2F0B1,#2FDBFE)]">
           <Image src={Logo} alt="logo" className="h-12 w-auto relative z-10"/>
         </div>
-        <div className="flex max-md:flex-col max-md:justify-center gap-8 mt-8">
+        <div className="flex max-md:flex-col max-md:justify-center gap-8 mt-8 max-md:ml-4">
           <a href="#" className="text-white/80 transition-colors">About</a>
           <a href="#" className="text-white/80 transition-colors">Pricing</a>
           <a href="#" className="text-white/80 transition-colors">Contact</a>

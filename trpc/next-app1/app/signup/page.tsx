@@ -1,7 +1,35 @@
-import { Eye, LogIn, Mail, User } from "lucide-react";
+"use client";
+
+import { Eye, EyeOff, LogIn, Mail, User } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { trpc } from "../_trpc/client";
+import React, { useState } from "react";
 
 export default function Page() {
+   const router = useRouter();
+   const [formData,setFormData] = useState({
+      name: '',
+      email: '',
+      password: ''
+   });
+   const [showPassword,setShowPassword] = useState(false);
+
+   const signupMutation = trpc.auth.signup.useMutation({
+      onSuccess: (data) => {
+         localStorage.setItem("token", data.token);
+         router.push("/dashboard");
+      },
+      onError: (error) => {
+       console.error("signup failed ",error)
+      }
+   });
+
+   const handleSubmit = async (e:React.FormEvent) => {
+    e.preventDefault();
+    signupMutation.mutate(formData);
+   }
+
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#a7dcf0] via-[#d3e8f1] to-white flex items-center  justify-center p-4">
            <div className="max-w-md w-full">
@@ -21,7 +49,7 @@ export default function Page() {
                      </p>
                  </div>
 
-            <form className="space-y-4">
+            <form className="space-y-4" onSubmit={handleSubmit}>
 
             <div className="relative">
                     <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
@@ -30,6 +58,8 @@ export default function Page() {
                     <input
                      type="text"
                      placeholder="Name"
+                     value={formData.name}
+                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                      className="w-full text-black pl-10 pr-4 py-3  bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200"
                      />
                  </div>
@@ -40,6 +70,8 @@ export default function Page() {
                     </div>
                     <input type="email" 
                      placeholder="Email"
+                     value={formData.email}
+                     onChange={(e) => setFormData({...formData,email: e.target.value})}
                      className="w-full text-black pl-10 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
                  </div>
@@ -48,14 +80,24 @@ export default function Page() {
                   <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
                    <LogIn className="h-5 w-5 text-gray-400" />
                     </div>
-                    <input type="password"
+                    <input type={showPassword?"text":"password"}
                     placeholder="Password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({...formData,password: e.target.value})}
                     className="w-full text-black pl-10 pr-4 py-3 bg-gray-50/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-200"
                     />
-                    <button type="button" className="absolute inset-y-0 right-3 flex items-center">
-                        <Eye className="h-5 w-5 text-gray-400" />
+                    <button type="button" className="absolute inset-y-0 right-3 flex items-center cursor-pointer" onClick={()=> setShowPassword(!showPassword)}>
+                     {showPassword===true?<Eye className="h-5 w-5 text-gray-400" /> : <EyeOff className="h-5 w-5 text-gray-400" />}
                     </button>
                   </div>
+
+                  {
+                     signupMutation.error && (
+                        <div className="text-red-500 text-sm text-center">
+                           {signupMutation.error.message}
+                        </div>
+                     )
+                  }
 
                   <div className="text-center">
                     <Link href="/login" className="text-sm text-gray-600 hover:text-gray-800">
@@ -65,7 +107,8 @@ export default function Page() {
 
                   <button 
                   type="submit"
-                  className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors duration-200"
+                  disabled={signupMutation.isPending}
+                  className="w-full bg-gray-900 text-white py-3 rounded-xl hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
                   >
                     Get Started
                   </button>

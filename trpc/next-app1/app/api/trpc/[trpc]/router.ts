@@ -1,10 +1,13 @@
 import {initTRPC} from "@trpc/server";
 import {z} from "zod";
 import { prisma } from "@/lib/prisma";
+import { authRouter } from "./authRouter";
 
 const t = initTRPC.create();
 
 export const appRouter = t.router({
+    auth: authRouter,
+    
     hello : t.procedure.input(z.object({
         text:z.string().optional()
     })).query(({input}) => {
@@ -27,10 +30,10 @@ export const appRouter = t.router({
         }),
     
     createTodo: t.procedure
-        .input(z.object({ title: z.string().min(1) }))
+        .input(z.object({ title: z.string().min(1),userId: z.string().min(1) }))
         .mutation(async ({ input }) => {
             return await prisma.todo.create({
-                data: { title: input.title }
+                data: { title: input.title, userId: input.userId }
             });
         }),
     

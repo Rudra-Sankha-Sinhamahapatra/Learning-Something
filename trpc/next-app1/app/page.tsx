@@ -1,113 +1,58 @@
-import TodoList from "./components/Todo";
-import Link from "next/link";
+import Link from 'next/link';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b border-gray-200 bg-blue-700 text-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Link href="/">
-                <h1 className="text-2xl font-bold">TaskFlow</h1>
-              </Link>
-              <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-800 text-white rounded-full">Beta</span>
-            </div>
-            
-            <nav className="hidden md:flex items-center space-x-1">
-              <Link 
-                href="/" 
-                className="px-3 py-2 text-sm font-medium text-white bg-blue-800 rounded-md"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/projects" 
-                className="px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 rounded-md"
-              >
-                Projects
-              </Link>
-              <Link 
-                href="/team" 
-                className="px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 rounded-md"
-              >
-                Team
-              </Link>
-              <Link 
-                href="/calendar" 
-                className="px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 rounded-md"
-              >
-                Calendar
-              </Link>
-              <Link 
-                href="/settings" 
-                className="px-3 py-2 text-sm font-medium text-white hover:bg-blue-800 rounded-md"
-              >
-                Settings
-              </Link>
-            </nav>
-            
-            <div className="flex items-center space-x-3">
-              <span className="hidden md:inline-block px-3 py-1 text-xs font-medium bg-blue-800 text-white rounded-full">
-                Free Plan
-              </span>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                Upgrade
-              </button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-b from-white to-blue-50">
+      {/* Hero Section */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-16 text-center">
+        <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          Organize Your Life with
+          <span className="text-blue-600"> TaskFlow</span>
+        </h1>
+        <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
+          Your personal task management solution. Simple, efficient, and beautiful way to keep track of what matters most.
+        </p>
+        
+        {/* CTA Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link 
+            href="/signup"
+            className="px-8 py-3 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Get Started
+          </Link>
+          <Link 
+            href="/login"
+            className="px-8 py-3 text-lg font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition duration-300 ease-in-out transform hover:scale-105"
+          >
+            Login
+          </Link>
         </div>
-      </header>
-      
-      <div className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-4 sm:px-6">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Task Manager</h1>
-              <p className="mt-1 text-sm text-gray-600">Streamline your workflow and boost productivity</p>
-            </div>
-            
-            <div className="mt-4 md:mt-0 flex space-x-3">
-              <button className="px-4 py-2 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-md hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                Filter Tasks
-              </button>
-              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-700 rounded-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
-                New Project
-              </button>
-            </div>
+
+        {/* Features Section */}
+        <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300">
+            <div className="text-blue-600 text-2xl mb-4">📝</div>
+            <h3 className="text-xl font-semibold mb-2">Task Management</h3>
+            <p className="text-gray-600">Create, organize, and track your tasks with ease</p>
+          </div>
+          <div className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300">
+            <div className="text-blue-600 text-2xl mb-4">🎯</div>
+            <h3 className="text-xl font-semibold mb-2">Goal Setting</h3>
+            <p className="text-gray-600">Set and achieve your goals with our intuitive interface</p>
+          </div>
+          <div className="p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition duration-300">
+            <div className="text-blue-600 text-2xl mb-4">📊</div>
+            <h3 className="text-xl font-semibold mb-2">Progress Tracking</h3>
+            <p className="text-gray-600">Monitor your progress and celebrate achievements</p>
           </div>
         </div>
       </div>
-      
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-medium text-gray-900">Active Tasks</h3>
-              <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">12</span>
-            </div>
-            <p className="mt-1 text-sm text-gray-600">Tasks in progress</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-medium text-gray-900">Completed</h3>
-              <span className="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">24</span>
-            </div>
-            <p className="mt-1 text-sm text-gray-600">Tasks completed this week</p>
-          </div>
-          
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <h3 className="text-xl font-medium text-gray-900">Upcoming</h3>
-              <span className="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded-full">7</span>
-            </div>
-            <p className="mt-1 text-sm text-gray-600">Tasks due soon</p>
-          </div>
-        </div>
-        
-        <TodoList />
-      </main>
+
+      {/* Footer */}
+      <footer className="mt-20 py-8 text-center text-gray-600">
+        <p>© 2024 TaskMaster. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

@@ -103,7 +103,7 @@ export default function Page() {
 
                   <div className="text-center">
                     <Link href="/login" className="text-sm text-gray-600 hover:text-gray-800">
-                    Already have an Account ?
+                    Already have an Account ? <span className="font-bold bg-gradient-to-r from-[#69ccf0] to-[#0e91ca] text-transparent bg-clip-text">Sign in</span>
                     </Link>
                   </div>
 

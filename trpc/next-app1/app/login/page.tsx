@@ -103,6 +103,12 @@ export default function Page() {
               </Link>
             </div>
 
+            <div className="flex items-center justify-center">
+              <Link href="/signup" className="text-sm text-gray-600 hover:gray-800">
+                Don&apos;t have an account? <span className="font-bold bg-gradient-to-r from-[#69ccf0] to-[#0e91ca] text-transparent bg-clip-text">Sign up</span>
+              </Link>
+            </div>
+
             <button
               type="submit"
               disabled={loginMutation.isPending}

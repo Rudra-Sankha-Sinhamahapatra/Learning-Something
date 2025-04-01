@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trpc } from "../_trpc/client";
+import { setAuthCookie } from "../actions/auth";
 
 export default function Page() {
   const router = useRouter();
@@ -15,8 +16,9 @@ export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
 
   const loginMutation = trpc.auth.login.useMutation({
-    onSuccess: (data) => {
-      localStorage.setItem("token", data.token);
+    onSuccess: async(data) => {
+     await setAuthCookie("token",data.token);
+    await setAuthCookie("userId",data.user.id);
       router.push("/dashboard");
     },
     onError: (error) => {

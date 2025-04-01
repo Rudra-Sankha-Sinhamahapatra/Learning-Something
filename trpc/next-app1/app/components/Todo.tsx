@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { trpc } from "../_trpc/client";
+import { checkAuth } from "../actions/auth";
+
 
 
 interface Todo {
@@ -14,9 +16,25 @@ interface Todo {
 
 export default function TodoList() {
   const [newTodo, setNewTodo] = useState("");
-  
+  const [token, setToken] = useState<string>();
+
+
+  useEffect(() => {
+    const getToken = async () => {
+      const { token } = await checkAuth();
+      setToken(token);
+    };
+    getToken();
+  }, []);
+
   const utils = trpc.useUtils();
-  const todos = trpc.getTodos.useQuery();
+  const { data: verifiedToken } = trpc.auth.verifyToken.useQuery(
+    { token: token || "" },
+    { enabled: !!token }
+  );
+  const todos = trpc.getTodos.useQuery(undefined, {
+    enabled: !!verifiedToken
+  });
   const addTodo = trpc.createTodo.useMutation({
     onSuccess: () => {
       utils.getTodos.invalidate();
@@ -33,7 +51,9 @@ export default function TodoList() {
   const handleAddTodo = (e: React.FormEvent) => {
     e.preventDefault();
     if (newTodo.trim()) {
-      addTodo.mutate({ title: newTodo.trim() });
+      if (verifiedToken && 'userId' in verifiedToken) {
+        addTodo.mutate({ title: newTodo.trim(), userId: verifiedToken.userId });
+      }
     }
   };
 

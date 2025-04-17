@@ -1,5 +1,7 @@
+"use client";
 import Check from "@/assets/check.svg";
-import {twMerge} from "tailwind-merge";
+import { twMerge } from "tailwind-merge";
+import { motion } from "framer-motion";
 
 const pricingTiers = [
   {
@@ -67,15 +69,32 @@ export const Pricing = () => {
             return (
               <div
                 key={index}
-                className={twMerge("rounded-3xl p-6 md:p-8  lg:p-10 shadow-[0_7px_14px_#EAEAEA] border border-[#F1F1F1] w-[320px]  h-fit flex flex-col", 
-                  tier.inverse ? "border-black bg-black text-white" : "text-black bg-white border-white"
+                className={twMerge(
+                  "rounded-3xl p-6 md:p-8  lg:p-10 shadow-[0_7px_14px_#EAEAEA] border border-[#F1F1F1] w-[320px]  h-fit flex flex-col",
+                  tier.inverse
+                    ? "border-black bg-black text-white"
+                    : "text-black bg-white border-white"
                 )}
               >
                 <div className="flex justify-between mb-8">
-                <h3 className="text-gray-400 text-lg font-bold">
-                  {tier.title}
-                </h3>
-               {tier.popular? <button className="border rounded-lg  px-2 py-1 border-gray-400 text-sm bg-gradient-to-r from-pink-300 via-green-400 to-blue-400 text-transparent bg-clip-text font-bold">Most Popular</button> : null}
+                  <h3 className="text-gray-400 text-lg font-bold">
+                    {tier.title}
+                  </h3>
+                  {tier.popular ? (
+                    <motion.button 
+                    animate={{
+                      backgroundPositionX:"100%"
+                    }}
+                    transition={{
+                      repeat: Infinity,
+                      repeatType: 'loop',
+                      duration: 1,
+                      ease: 'linear'
+                    }}
+                    className="border cursor-default rounded-lg  px-2 py-1 border-gray-400 text-sm bg-gradient-to-r from-indigo-500 via-violet-500 to-blue-400 [background-size:200%] text-transparent bg-clip-text font-bold">
+                      Most Popular
+                    </motion.button>
+                  ) : null}
                 </div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-4xl font-bold tracking-tighter leading-none">
@@ -97,7 +116,10 @@ export const Pricing = () => {
                 </button>
                 <ul className="mt-6 flex flex-col gap-5">
                   {tier.features.map((feature: string) => (
-                    <li className="flex items-center text-sm font-normal" key={feature}>
+                    <li
+                      className="flex items-center text-sm font-normal"
+                      key={feature}
+                    >
                       <Check className="w-4 h-4 mr-2" />
                       {feature}
                     </li>

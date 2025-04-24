@@ -1,0 +1,29 @@
+{
+  "name": "puppeteer-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for browser automation using Puppeteer",
+  "license": "MIT",
+  "author": "Rudra Sankha",
+  "type": "module",
+  "bin": {
+    "mcp-server-puppeteer": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && shx chmod +x dist/*.js",
+    "prepare": "npm run build",
+    "watch": "tsc --watch"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.0.1",
+    "express": "^5.1.0",
+    "puppeteer": "^23.4.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "shx": "^0.3.4",
+    "typescript": "^5.6.2"
+  }
+}

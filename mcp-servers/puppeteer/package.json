@@ -1,9 +1,16 @@
 {
-  "name": "puppeteer-mcp-server",
-  "version": "1.0.0",
+  "name": "@rudrasankha/puppeteer-mcp-server",
+  "version": "1.0.10",
   "description": "MCP server for browser automation using Puppeteer",
   "license": "MIT",
   "author": "Rudra Sankha",
+  "homepage": "https://github.com/Rudra-Sankha-Sinhamahapatra/Puppeteer-MCP-Server",
+  "bugs": "https://github.com/Rudra-Sankha-Sinhamahapatra/Puppeteer-MCP-Server/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rudra-Sankha-Sinhamahapatra/Puppeteer-MCP-Server.git"
+  },
+
   "type": "module",
   "bin": {
     "mcp-server-puppeteer": "dist/index.js"
@@ -18,8 +25,9 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.0.1",
+    "dotenv": "^16.3.1",
     "express": "^5.1.0",
-    "puppeteer": "^23.4.0"
+    "puppeteer-core": "^23.4.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.1",

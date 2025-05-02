@@ -1,11 +1,10 @@
-
 # Puppeteer MCP Server (SSE Version)
 
 A Model Context Protocol server that provides browser automation capabilities using Puppeteer. This server enables LLMs to interact with web pages, take screenshots, and execute JavaScript in a real browser environment, all using Server-Sent Events (SSE) for communication.
 
 ## Features
 
-- Browser automation via Puppeteer
+- Browser automation via Puppeteer (using system Chrome browser)
 - Server-Sent Events (SSE) for real-time communication
 - Screenshot capabilities (full page or specific elements)
 - Console log monitoring
@@ -95,6 +94,16 @@ npm install
 npm run build
 ```
 
+## Using System Chrome
+
+This server uses `puppeteer-core` to connect to the system's installed Chrome browser instead of downloading Chromium. This approach:
+
+- Reduces installation size and time
+- Uses your existing Chrome browser
+- May provide better compatibility with certain websites
+
+The server will automatically search for Chrome installations in common paths. If Chrome is not found, it will fallback to using Puppeteer's bundled Chromium browser.
+
 ## Running the Server
 
 Run the built server:
@@ -103,17 +112,17 @@ Run the built server:
 node dist/index.js
 ```
 
-By default, the server will start on port 3000. You can customize the port by setting the PORT environment variable:
+By default, the server will start on port 9003. You can customize the port by setting the PORT environment variable:
 
 ```bash
-PORT=4000 node dist/index.js
+PORT=7896 node dist/index.js
 ```
 
 You should see output similar to:
 ```
-HTTP server listening on port 3000
-SSE endpoint available at http://localhost:3000/sse
-Message endpoint available at http://localhost:3000/messages
+HTTP server listening on port 9003
+SSE endpoint available at http://localhost:9003/sse
+Message endpoint available at http://localhost:9003/messages
 Puppeteer tools are available and ready to use
 ```
 
@@ -125,7 +134,7 @@ To use the Puppeteer MCP server with Cursor, add the following to your `~/.curso
 {
   "mcpServers": {
     "puppeteer": {
-      "url": "http://localhost:3000/sse"
+      "url": "http://localhost:9003/sse"
     }
   }
 }
@@ -222,6 +231,43 @@ You can customize Puppeteer's browser behavior by:
      }
    }
    ```
+
+## Environment Variables
+
+This MCP server supports the following environment variables:
+
+### Server Configuration
+- `PORT`: The port number the server will listen on (default: 9003)
+
+### Puppeteer Configuration
+- `PUPPETEER_SKIP_DOWNLOAD`: Set to "true" to skip Chromium download during installation
+- `PUPPETEER_SKIP_CHROMIUM_DOWNLOAD`: Alternative name for PUPPETEER_SKIP_DOWNLOAD
+- `ALLOW_DANGEROUS`: Set to "true" to allow dangerous browser arguments like --no-sandbox
+- `DOCKER_CONTAINER`: Set to "true" when running in a Docker container to use appropriate launch options
+- `PUPPETEER_ENV_CONFIG`: JSON-encoded puppeteer launch options
+
+You can create a `.env` file in the project root to set these variables:
+
+```
+# Server configuration
+PORT=9003
+
+# Puppeteer configuration
+PUPPETEER_SKIP_DOWNLOAD=true
+PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ALLOW_DANGEROUS=false
+DOCKER_CONTAINER=false
+
+# Optional: JSON-encoded puppeteer launch options
+PUPPETEER_ENV_CONFIG={"headless":false,"args":["--window-size=1280,720"]}
+```
+
+### Command Line Arguments
+
+You can also pass command line arguments:
+```
+node dist/index.js --port=9003
+```
 
 ## License
 

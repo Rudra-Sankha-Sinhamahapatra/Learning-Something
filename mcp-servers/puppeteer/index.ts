@@ -12,9 +12,18 @@ import {
     Tool,
     CallToolResult
 } from "@modelcontextprotocol/sdk/types.js"
-import puppeteer, {Browser,Page} from "puppeteer";
+import type { Browser, Page } from "puppeteer-core";
 import express from "express";
 import {IncomingMessage,ServerResponse} from "http";
+import { findChrome } from './chrome-finder.js';
+import puppeteerCore from 'puppeteer-core';
+import { ALLOW_DANGEROUS_ARGS, DEFAULT_PORT, DOCKER_CONTAINER, getConfiguredPort, getPuppeteerEnvConfig, PUPPETEER_HEADLESS, PUPPETEER_SKIP_DOWNLOAD } from './config.js';
+
+// Set environment variables for Puppeteer
+if (PUPPETEER_SKIP_DOWNLOAD) {
+  process.env.PUPPETEER_SKIP_DOWNLOAD = 'true';
+  process.env.PUPPETEER_SKIP_CHROMIUM_DOWNLOAD = 'true';
+}
 
 export const Logger = {
     log: (...args:any[]) => console.log(...args),
@@ -30,8 +39,6 @@ const TOOLS : Tool[] = [
           type: "object",
           properties: {
             url: { type: "string", description: "URL to navigate to" },
-            launchOptions: { type: "object", description: "PuppeteerJS LaunchOptions. Default null. If changed and not null, browser restarts. Example: { headless: true, args: ['--no-sandbox'] }" },
-            allowDangerous: { type: "boolean", description: "Allow dangerous LaunchOptions that reduce security. When false, dangerous args like --no-sandbox will throw errors. Default false." },
           },
           required: ["url"],
         },
@@ -127,12 +134,8 @@ const TOOLS : Tool[] = [
             "--allow-running-insecure-content",
         ];
 
-        let envConfig = {};
-        try {
-            envConfig = JSON.parse(process.env.PUPPETEER_ENV_CONFIG || "{}");
-        } catch (error:any) {
-            Logger.warn('Failed to parse PUPPETEER_LAUNCH_OPTIONS:', error?.message || error);
-        }
+        // Use config function to get environment configuration
+        const envConfig = getPuppeteerEnvConfig();
 
         // Deep merge environment config with user-provided options
         const mergedConfig = deepMerge(envConfig, launchOptions || {});
@@ -140,8 +143,8 @@ const TOOLS : Tool[] = [
         //security validation for merged config
         if(mergedConfig?.args) {
             const dangerousArgs = mergedConfig.args?.filter?.((arg: string) => DANGEROUS_ARGS.some((dangerousArg: string) => arg.startsWith(dangerousArg)));
-            if (dangerousArgs?.length > 0 && !(allowDangerous || (process.env.ALLOW_DANGEROUS === 'true'))) {
-              throw new Error(`Dangerous browser arguments detected: ${dangerousArgs.join(', ')}. Fround from environment variable and tool call argument. ` +
+            if (dangerousArgs?.length > 0 && !(allowDangerous || ALLOW_DANGEROUS_ARGS)) {
+              throw new Error(`Dangerous browser arguments detected: ${dangerousArgs.join(', ')}. Found from environment variable and tool call argument. ` +
                 'Set allowDangerous: true in the tool call arguments to override.');
             }
         }
@@ -158,12 +161,30 @@ const TOOLS : Tool[] = [
           }
 
           if(!browser) {
-             const npx_args = {headless:false} 
-             const docker_args = { headless: true, args: ["--no-sandbox","--single-process","--no-zygote"]}
-             browser = await puppeteer.launch(deepMerge(
-                process.env.DOCKER_CONTAINER ? docker_args : npx_args,
-                mergedConfig
-             ))
+             // Use system Chrome instead of downloading Chromium
+             const chromePath = await findChrome();
+             const baseNpxArgs: any = {headless: PUPPETEER_HEADLESS};
+             const baseDockerArgs: any = {headless: PUPPETEER_HEADLESS, args: ["--no-sandbox","--single-process","--no-zygote"]};
+             
+             try {
+               if (!chromePath) {
+                 throw new Error('No system Chrome installation found. Puppeteer-core requires a Chrome executable path.');
+               }
+               
+               Logger.log(`Using system Chrome at: ${chromePath}`);
+               baseNpxArgs.executablePath = chromePath;
+               baseDockerArgs.executablePath = chromePath;
+               
+               browser = await puppeteerCore.launch(deepMerge(
+                 DOCKER_CONTAINER ? baseDockerArgs : baseNpxArgs,
+                 mergedConfig
+               )) as unknown as Browser;
+               
+             } catch (error) {
+               Logger.error('Failed to launch browser with puppeteer-core:', error);
+               throw new Error(`Failed to launch browser. Please ensure Chrome/Chromium is installed on your system. Error: ${error}`);
+             }
+             
            const pages = await browser.pages();
            page = pages[0];
 
@@ -351,7 +372,8 @@ function deepMerge(target: any, source: any): any {
   
       case "puppeteer_evaluate":
         try {
-          await page.evaluate(() => {
+          // Use non-namespaced evaluate method
+          await page!.evaluate(() => {
             window.mcpHelper = {
               logs: [],
               originalConsole: { ...console },
@@ -365,9 +387,9 @@ function deepMerge(target: any, source: any): any {
             });
           });
   
-          const result = await page.evaluate(args.script);
+          const result = await page!.evaluate(args.script);
   
-          const logs = await page.evaluate(() => {
+          const logs = await page!.evaluate(() => {
             Object.assign(console, window.mcpHelper.originalConsole);
             const logs = window.mcpHelper.logs;
             delete (window as any).mcpHelper;
@@ -508,7 +530,12 @@ function deepMerge(target: any, source: any): any {
  }
 
  // starting the server
- const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+ const port = getConfiguredPort();
+ Logger.log(`Starting server with port configuration:`);
+ Logger.log(`- DEFAULT_PORT: ${DEFAULT_PORT}`);
+ Logger.log(`- Environment PORT: ${process.env.PORT || 'not set'}`);
+ Logger.log(`- Final selected port: ${port}`);
+
  const sseServer = new PuppeteerSSEServer();
  sseServer.startHttpServer(port).catch(error => {
     Logger.error("Failed to start HTTP server:", error);

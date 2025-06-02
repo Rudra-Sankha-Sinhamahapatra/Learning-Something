@@ -1,0 +1,22 @@
+{
+  "name": "test-app-1",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "bun run index.ts",
+    "dev": "bun run --watch --hot index.ts" 
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "prisma": "^6.8.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "@types/express": "^5.0.2",
+    "express": "^5.1.0",
+    "kafkajs": "^2.2.4"
+  }
+}

@@ -3,6 +3,7 @@ import { db } from "./db/db";
 import { users as usersTable } from "./db/schema/schema";
 import { config } from "./config";
 import { eq } from "drizzle-orm";
+import redisClient from "./redis";
 
 const app = express();
 app.use(express.json());
@@ -22,12 +23,16 @@ app.post('/users', async (req, res) => {
       const existingUser = await db.query.users.findFirst({
         where: eq(usersTable.email, email),
       });
-      if(existingUser) {
-        res.status(400).json({error: 'User already exists'});
-        return;
-      }
       const result = await db.insert(usersTable).values({ name, email }).returning();
-      res.status(200).json(result[0]);
+      await redisClient.del('users');
+      const allUsers = await db.select().from(usersTable);
+      await redisClient.set('users', JSON.stringify(allUsers),{
+        EX:3600,
+      });
+      res.status(200).json({
+        user: result[0],
+        existingUser: existingUser?"ExistingUser added":"New User added"
+      });
     } catch (err) {
       res.status(500).json({ error: 'Insertion failed' });
       console.log(err);
@@ -39,12 +44,31 @@ app.get('/users', async (req, res) => {
     start = Date.now();
     try {
     const users = await db.select().from(usersTable);
+    await redisClient.del('users');
+    await redisClient.set('users', JSON.stringify(users), {
+        EX:3600,
+    });
     end = Date.now();
     totalTime = end - start;
     res.status(200).json({
         users,
         time: `${totalTime} ms`,
+        source:'postgres'
     });
+    } catch (error) {
+        res.status(500).json({error: 'Internal server error'});
+        console.log(error);
+        return;
+    }
+})
+
+app.get('/users/redis', async (req, res) => {
+    start = Date.now();
+    try {
+    const users = await redisClient.get('users');
+    end = Date.now();
+    totalTime = end - start;
+    res.status(200).json({users: JSON.parse(users as string), time: `${totalTime} ms`, source:'redis'});
     } catch (error) {
         res.status(500).json({error: 'Internal server error'});
         console.log(error);

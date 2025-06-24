@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.button {
+  @apply px-4 py-1 border rounded-md border-black;
+}

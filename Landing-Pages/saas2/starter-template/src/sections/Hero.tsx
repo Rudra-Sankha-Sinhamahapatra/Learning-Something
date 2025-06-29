@@ -5,8 +5,8 @@ import designImage2 from "@/assets/images/design-example-2.png"
 import MousePointer from "@/assets/images/mouse-pointer.svg"
 
 export default function Hero() {
-    return <div className="flex mt-12 relative justify-center items-start min-h-[600px] overflow-hidden">
-        <div className="absolute -left-24 top-4">
+    return <div className="flex mt-12 relative justify-center items-start min-h-[520px] overflow-hidden">
+        <div className="absolute -left-12 top-4">
             <Image
                 src={designImage1}
                 alt="designImage1"
@@ -47,7 +47,7 @@ export default function Hero() {
                 </div>
             </div>
         </div>
-        <div className="absolute -right-24 top-0">
+        <div className="absolute -right-12 top-0">
             <Image
                 src={designImage2}
                 alt="DesignImage2"

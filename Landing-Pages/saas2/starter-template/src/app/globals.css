@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.features-card {
+    @apply bg-neutral-900 p-8 rounded-2xl
+}
+
+.feat-card-h1 {
+    @apply text-white text-2xl font-medium mb-2 tracking-tight leading-relaxed
+}
+
+.feat-card-p1 {
+    @apply text-gray-400
+}

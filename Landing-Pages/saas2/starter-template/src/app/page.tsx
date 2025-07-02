@@ -5,9 +5,9 @@ import LogoTicker from "@/sections/LogoTicker";
 
 export default function Home() {
     return <div>
-        <Hero/>
-        <LogoTicker/>
-        <Introduction/>
-        <Features/>
+        <Hero />
+        <LogoTicker />
+        <Introduction />
+        <Features />
     </div>;
 }

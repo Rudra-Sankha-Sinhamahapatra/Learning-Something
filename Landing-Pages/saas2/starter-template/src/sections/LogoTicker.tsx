@@ -25,17 +25,17 @@ export default function LogoTicker() {
         <div className="container mx-auto">
             <p className="text-gray-400 text-md text-center mb-12">Already chosen by these market leaders</p>
             <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
-                <motion.div 
-                className="flex items-center justify-center gap-16 opacity-50 whitespace-nowrap"
-                animate={{
-                    translateX: "-50%"
-                }}
-                transition={{
-                    duration: 20,
-                    repeat: Infinity,
-                    ease:"linear",
-                    repeatType:"loop"
-                }}
+                <motion.div
+                    className="flex items-center justify-center gap-16 opacity-50 whitespace-nowrap"
+                    animate={{
+                        translateX: "-50%"
+                    }}
+                    transition={{
+                        duration: 20,
+                        repeat: Infinity,
+                        ease: "linear",
+                        repeatType: "loop"
+                    }}
                 >
                     {logos.map((logo, index) => (
                         <div key={index} className="flex items-center justify-center flex-shrink-0">

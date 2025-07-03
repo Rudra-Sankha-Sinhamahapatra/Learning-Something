@@ -100,10 +100,10 @@ export default function Features() {
                     key={index}
                     className="bg-neutral-900 rounded-2xl flex gap-2 border border-slate-300 
                  px-4 py-2 box-border
-                 w-1/3 md:w-1/4 lg:w-1/6"
+                 w-1/2 sm2:w-1/3 md:w-1/4 lg:w-1/6 overflow-hidden"
                 >
                     <div className="rounded-full bg-lime-400">
-                        <StarIcon className="fill-black" />
+                        <StarIcon className="max-sm:hidden fill-black" />
                     </div>
                     {feature}
                 </div>

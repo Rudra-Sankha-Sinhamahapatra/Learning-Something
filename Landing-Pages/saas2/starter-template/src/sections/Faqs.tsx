@@ -1,3 +1,8 @@
+"use client"
+import StarIcon from "@/assets/images/star.svg"
+import PlusIcon from "@/assets/images/plus.svg"
+import { useState } from "react";
+
 const faqs = [
     {
         question: "How is Layers different from other design tools?",
@@ -22,5 +27,47 @@ const faqs = [
 ];
 
 export default function Faqs() {
-    return <div>Faqs</div>;
+    const [expandedIndex,setExpandedIndex] = useState<number | null>(null);
+
+    const toggleFaq = (index:number) => {
+        setExpandedIndex(expandedIndex === index ? null : index);
+    }
+
+    return <div className="my-12 flex flex-col justify-center items-center mx-auto">
+       <div className="rounded-full border  border-lime-400 px-3 py-1.5 flex gap-2 text-lime-400 w-fit mb-8">
+        <StarIcon className="fill-lime-400"/>
+        FAQS
+       </div>
+       <h2 className="text-6xl text-center mb-24">
+        Questions? We've <br />
+        got <span className="text-lime-400">answers</span>
+       </h2>
+
+       <div className="space-y-6 lg:w-[50%] sm2:w-[80%]  sm:w-[100%]">
+       {faqs.map((faq,index) =>
+         <div key={index} className="border border-gray-300 rounded-2xl bg-neutral-900 overflow-hidden transition-all duration-500 ease-out">
+            <div className="flex justify-between items-start gap-12 p-6 cursor-pointer"
+            onClick={() => toggleFaq(index)}
+            >
+            <h3 className="text-lg text-white font-medium leading-relaxed">{faq.question}</h3>
+            <PlusIcon className={`text-lime-400 transition-transform duration-500 ease-out flex-shrink-0 w-6 h-6 ${
+                expandedIndex === index ? 'rotate-45' : 'rotate-0'
+            }`}/>
+            </div>
+            <div className={`transition-all duration-700 ease-in-out overflow-hidden ${
+                expandedIndex === index 
+                    ? 'max-h-48 opacity-100' 
+                    : 'max-h-0 opacity-0'
+            }`}>
+                <div className="px-6 pb-6">
+            <p className="text-gray-400 leading-relaxed">{faq.answer}</p>
+            </div>
+            </div>
+            <div>
+
+            </div>
+            </div>
+    )}
+       </div>
+    </div>;
 }

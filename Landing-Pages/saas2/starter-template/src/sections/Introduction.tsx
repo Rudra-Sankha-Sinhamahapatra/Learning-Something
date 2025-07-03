@@ -1,7 +1,7 @@
 "use client"
 import StarIcon from "@/assets/images/star.svg";
 
-const text = `You're racing to create exceptional work, but traditional design tools slow you down with unnecessary complexity and steep learning curves.`;
+const text = `You&apos;re racing to create exceptional work, but traditional design tools slow you down with unnecessary complexity and steep learning curves.`;
 
 export default function Introduction() {
     return <div className="mt-24 flex flex-col justify-center items-center">
@@ -11,7 +11,7 @@ export default function Introduction() {
         </div>
         <div className="text-white text-6xl text-center mx-auto w-[80%] md:w-[72%] lg:w-[62%] my-12 overflow-hidden">
             Your creative process deserves better. <span className="text-gray-400">{text}</span>
-            <span className="text-lime-500">That's why we built Layers</span>
+            <span className="text-lime-500">That&apos;s why we built Layers</span>
         </div>
     </div>
 }

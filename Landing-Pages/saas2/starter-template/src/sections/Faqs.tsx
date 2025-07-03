@@ -39,7 +39,7 @@ export default function Faqs() {
         FAQS
        </div>
        <h2 className="text-6xl text-center mb-24">
-        Questions? We've <br />
+        Questions? We&apos;ve <br />
         got <span className="text-lime-400">answers</span>
        </h2>
 

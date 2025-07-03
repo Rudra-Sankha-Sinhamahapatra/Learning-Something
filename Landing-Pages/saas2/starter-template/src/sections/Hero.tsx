@@ -33,7 +33,7 @@ export default function Hero() {
             </h1>
 
             <p className="text-lg text-gray-400 text-center w-full md:w-[600px] mx-auto leading-relaxed">
-                Design tools should'nt show you down. Layers combines powerful features with an intuitive interface that keeps you in your creative flow
+                Design tools shouldn&apos;t show you down. Layers combines powerful features with an intuitive interface that keeps you in your creative flow
             </p>
             <div className="relative flex items-center">
                 <form className="flex justify-between bg-transparent border border-gray-400 hover:border-white rounded-full  max-w-[400px] focus-within:border-white transition-colors">

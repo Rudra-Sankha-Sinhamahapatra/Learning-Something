@@ -68,7 +68,7 @@ export default function Features() {
             </div>
 
             <div className="features-card">
-                <h2 className="text-3xl text-neutral-600 font-bold text-center my-6 tracking-wide">We're achieved <br />
+                <h2 className="text-3xl text-neutral-600 font-bold text-center my-6 tracking-wide">We&apos;re achieved <br />
                     <span className="bg-gradient-to-r from-purple-400 to-pink-400 text-transparent bg-clip-text">incredible</span> <br />
                     growth this year
                 </h2>

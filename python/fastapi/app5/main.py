@@ -9,7 +9,7 @@ class WebsiteInput(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message":"Langchain Document Loader FastAPI Server is Running!"}
+    return {"message":"Langchain Website Loader FastAPI Server is Running!"}
 
 @app.post("/loadinfo")
 def loadall(url_input:WebsiteInput):

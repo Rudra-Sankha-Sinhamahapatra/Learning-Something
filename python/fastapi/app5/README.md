@@ -1,4 +1,4 @@
-# FastAPI Document Loader
+# FastAPI Website Crawler
 
 A simple FastAPI server that loads and extracts content from any website URL using LangChain's document loader.
 

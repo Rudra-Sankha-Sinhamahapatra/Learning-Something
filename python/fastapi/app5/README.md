@@ -8,16 +8,52 @@ A simple FastAPI server that loads and extracts content from any website URL usi
 - Get metadata using `/metadata` endpoint
 - Basic error handling for invalid URLs
 
-## Setup
-1. Install dependencies:
+## Setup Guide
+
+### 1. Python Virtual Environment
+
+#### Windows
 ```bash
-pip install fastapi uvicorn langchain-community requests
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+.venv\Scripts\activate
 ```
 
-2. Run the server:
+#### macOS/Linux
 ```bash
-uvicorn main:app --reload
+# Create virtual environment
+python3 -m venv .venv
+
+# Activate virtual environment
+source .venv/bin/activate
 ```
+
+### 2. Install Dependencies
+
+```bash
+# Install required packages
+pip install fastapi uvicorn langchain-community requests
+
+# Freeze requirements (after installing packages)
+pip freeze > requirements.txt
+
+# Or install from requirements.txt
+pip install -r requirements.txt
+```
+
+### 3. Run the Server
+
+```bash
+# Development server with auto-reload
+uvicorn main:app --reload
+
+# Production server
+uvicorn main:app --host 0.0.0.0 --port 8000
+```
+
+The server will start at `http://localhost:8000`
 
 ## API Endpoints
 
@@ -46,7 +82,18 @@ The API returns 400 status code with error message if:
 - Website is not accessible
 - Content cannot be loaded
 
+## API Documentation
+Once the server is running, visit:
+- Swagger UI: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+
 ## Tech Stack
 - FastAPI
 - LangChain
 - Python
+- Uvicorn (ASGI Server)
+
+## Development Notes
+- Python 3.13.5 required (Python3)
+- Uses LangChain's WebBaseLoader for content extraction
+- SSL verification is disabled for development purposes

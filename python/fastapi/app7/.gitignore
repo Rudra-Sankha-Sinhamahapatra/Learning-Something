@@ -1,0 +1,8 @@
+venv
+.venv
+__pycache__
+.env
+data
+chroma
+chroma_store
+repo

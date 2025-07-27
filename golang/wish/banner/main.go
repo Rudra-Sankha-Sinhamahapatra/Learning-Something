@@ -24,6 +24,7 @@ const (
 	port = "23234"
 )
 
+//go:embed banner.txt
 var banner string
 
 func main() {

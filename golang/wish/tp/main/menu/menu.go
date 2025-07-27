@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -8,18 +9,20 @@ import (
 )
 
 type menuModel struct {
-	cursor int
-	items  []string
-	width  int
-	height int
+	cursor       int
+	items        []string
+	width        int
+	height       int
+	scrollOffset int
 }
 
 func InitialMenuModel() menuModel {
 	return menuModel{
-		cursor: 0,
-		items:  []string{"Home", "About", "Projects", "Contact"},
-		width:  80,
-		height: 24,
+		cursor:       0,
+		items:        []string{"Home", "About", "Projects", "Contact"},
+		width:        80,
+		height:       24,
+		scrollOffset: 0,
 	}
 }
 
@@ -39,14 +42,35 @@ func (m menuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "left":
 			if m.cursor > 0 {
 				m.cursor--
+				m.scrollOffset = 0
 			}
 		case "right":
 			if m.cursor < len(m.items)-1 {
 				m.cursor++
+				m.scrollOffset = 0
+			}
+		case "up":
+			if m.scrollOffset > 0 {
+				m.scrollOffset--
+			}
+		case "down":
+			maxScroll := m.getMaxScroll()
+			if m.scrollOffset < maxScroll {
+				m.scrollOffset++
 			}
 		}
 	}
 	return m, nil
+}
+
+func (m menuModel) getMaxScroll() int {
+	content := m.getContent()
+	contentLines := strings.Split(content, "\n")
+	availableHeight := m.height - 8
+	if len(contentLines) <= availableHeight {
+		return 0
+	}
+	return len(contentLines) - availableHeight
 }
 
 func (m menuModel) View() string {
@@ -95,13 +119,33 @@ func (m menuModel) View() string {
 	header := lipgloss.JoinHorizontal(lipgloss.Left, title, strings.Repeat(" ", 20), navigation)
 
 	content := m.getContent()
+	contentLines := strings.Split(content, "\n")
 
-	footer := footerStyle.Render("Press 'q' to quit | Use arrow keys to navigate")
+	availableHeight := m.height - 8
+	startLine := m.scrollOffset
+	endLine := startLine + availableHeight
+
+	if endLine > len(contentLines) {
+		endLine = len(contentLines)
+	}
+
+	var visibleContent []string
+	if startLine < len(contentLines) {
+		visibleContent = contentLines[startLine:endLine]
+	}
+
+	scrolledContent := strings.Join(visibleContent, "\n")
+
+	footerText := "Press 'q' to quit | ←→ menu | ↑↓ scroll"
+	if len(contentLines) > availableHeight {
+		footerText += fmt.Sprintf(" (%d/%d)", m.scrollOffset+1, len(contentLines)-availableHeight+1)
+	}
+	footer := footerStyle.Render(footerText)
 
 	body := lipgloss.JoinVertical(lipgloss.Left,
 		header,
 		strings.Repeat("-", m.width-4),
-		content,
+		scrolledContent,
 		"",
 		footer,
 	)
@@ -151,35 +195,52 @@ Navigate through the sections to learn more about me and my work.`)
 		langRow := lipgloss.JoinHorizontal(lipgloss.Left, langBoxes...)
 
 		fwTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Frameworks & Libraries")
-		frameworks := []string{"ExpressJS", "ReactJS", "NextJS", "Tailwind CSS", "Nest Js", "Gin"}
+		frameworks := []string{"ReactJS", "NextJS", "ExpressJS", "Nest Js", "Gin", "GraphQL"}
 		var fwBoxes []string
 		for _, fw := range frameworks {
 			fwBoxes = append(fwBoxes, skillBoxStyle.Render(fw))
 		}
 		fwRow := lipgloss.JoinHorizontal(lipgloss.Left, fwBoxes...)
 
-		toolsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Tools & Platforms")
+		stateTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## State Management & Styling")
+		stateTools := []string{"Zustand", "Recoil", "Tailwind CSS"}
+		var stateBoxes []string
+		for _, state := range stateTools {
+			stateBoxes = append(stateBoxes, skillBoxStyle.Render(state))
+		}
+		stateRow := lipgloss.JoinHorizontal(lipgloss.Left, stateBoxes...)
 
-		devTools := []string{"Git", "Docker", "Jest", "Vitest"}
+		toolsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Development Tools")
+		devTools := []string{"Git", "Jest", "Vitest"}
 		var devBoxes []string
 		for _, tool := range devTools {
 			devBoxes = append(devBoxes, skillBoxStyle.Render(tool))
 		}
 		devRow := lipgloss.JoinHorizontal(lipgloss.Left, devBoxes...)
 
-		databases := []string{"PostgreSQL", "Mongo DB", "Redis", "Prisma", "Drizzle"}
+		dbTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Databases & Cloud")
+		databases := []string{"PostgreSQL", "Mongo DB", "Redis", "Supabase", "Prisma", "Drizzle"}
 		var dbBoxes []string
 		for _, db := range databases {
 			dbBoxes = append(dbBoxes, skillBoxStyle.Render(db))
 		}
 		dbRow := lipgloss.JoinHorizontal(lipgloss.Left, dbBoxes...)
 
+		monTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Monitoring & Messaging")
 		monitoring := []string{"Prometheus", "Grafana", "Kafka"}
 		var monBoxes []string
 		for _, mon := range monitoring {
 			monBoxes = append(monBoxes, skillBoxStyle.Render(mon))
 		}
 		monRow := lipgloss.JoinHorizontal(lipgloss.Left, monBoxes...)
+
+		devopsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## DevOps")
+		devopsTools := []string{"Docker", "Kubernetes", "CI/CD", "Nginx", "AWS EC2", "AWS S3", "AWS ECS"}
+		var devopsBoxes []string
+		for _, devops := range devopsTools {
+			devopsBoxes = append(devopsBoxes, skillBoxStyle.Render(devops))
+		}
+		devopsRow := lipgloss.JoinHorizontal(lipgloss.Left, devopsBoxes...)
 
 		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
 			aboutTitle,
@@ -193,10 +254,20 @@ Navigate through the sections to learn more about me and my work.`)
 			fwTitle,
 			fwRow,
 			"",
+			stateTitle,
+			stateRow,
+			"",
 			toolsTitle,
 			devRow,
+			"",
+			dbTitle,
 			dbRow,
+			"",
+			monTitle,
 			monRow,
+			"",
+			devopsTitle,
+			devopsRow,
 		))
 
 	case 2:

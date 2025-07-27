@@ -158,6 +158,29 @@ Navigate through the sections to learn more about me and my work.`)
 		}
 		fwRow := lipgloss.JoinHorizontal(lipgloss.Left, fwBoxes...)
 
+		toolsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Tools & Platforms")
+
+		devTools := []string{"Git", "Docker", "Jest", "Vitest"}
+		var devBoxes []string
+		for _, tool := range devTools {
+			devBoxes = append(devBoxes, skillBoxStyle.Render(tool))
+		}
+		devRow := lipgloss.JoinHorizontal(lipgloss.Left, devBoxes...)
+
+		databases := []string{"PostgreSQL", "Mongo DB", "Redis", "Prisma", "Drizzle"}
+		var dbBoxes []string
+		for _, db := range databases {
+			dbBoxes = append(dbBoxes, skillBoxStyle.Render(db))
+		}
+		dbRow := lipgloss.JoinHorizontal(lipgloss.Left, dbBoxes...)
+
+		monitoring := []string{"Prometheus", "Grafana", "Kafka"}
+		var monBoxes []string
+		for _, mon := range monitoring {
+			monBoxes = append(monBoxes, skillBoxStyle.Render(mon))
+		}
+		monRow := lipgloss.JoinHorizontal(lipgloss.Left, monBoxes...)
+
 		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
 			aboutTitle,
 			aboutText,
@@ -169,6 +192,11 @@ Navigate through the sections to learn more about me and my work.`)
 			"",
 			fwTitle,
 			fwRow,
+			"",
+			toolsTitle,
+			devRow,
+			dbRow,
+			monRow,
 		))
 
 	case 2:

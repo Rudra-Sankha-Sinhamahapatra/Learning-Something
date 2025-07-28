@@ -162,7 +162,17 @@ func (m menuModel) View() string {
 	}
 
 	navigation := lipgloss.JoinHorizontal(lipgloss.Left, navItems...)
-	header := lipgloss.JoinHorizontal(lipgloss.Left, title, strings.Repeat(" ", 10), navigation)
+
+	var spacing string
+	if fixedWidth < 80 {
+		spacing = strings.Repeat(" ", 2)
+	} else if fixedWidth < 95 {
+		spacing = strings.Repeat(" ", 5)
+	} else {
+		spacing = strings.Repeat(" ", 10)
+	}
+
+	header := lipgloss.JoinHorizontal(lipgloss.Left, title, spacing, navigation)
 
 	content := m.getContent(fixedWidth)
 	contentLines := strings.Split(content, "\n")

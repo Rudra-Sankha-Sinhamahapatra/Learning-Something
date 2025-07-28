@@ -1,8 +1,9 @@
 package menu
 
 import (
-	"fmt"
 	"strings"
+
+	"menu/banner"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -58,15 +59,34 @@ func (m menuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.scrollOffset < maxScroll {
 				m.scrollOffset++
 			}
+		case "home":
+			m.scrollOffset = 0
+		case "end":
+			m.scrollOffset = m.getMaxScroll()
 		}
 	}
 	return m, nil
 }
 
 func (m menuModel) getMaxScroll() int {
-	content := m.getContent()
+	var fixedHeight int
+
+	if m.width < 90 {
+		fixedHeight = m.height - 6
+	} else if m.width < 120 {
+		fixedHeight = 28
+	} else {
+		fixedHeight = 30
+	}
+
+	if fixedHeight < 18 {
+		fixedHeight = 18
+	}
+
+	content := m.getContent(70)
 	contentLines := strings.Split(content, "\n")
-	availableHeight := m.height - 8
+	availableHeight := fixedHeight - 8
+
 	if len(contentLines) <= availableHeight {
 		return 0
 	}
@@ -74,6 +94,26 @@ func (m menuModel) getMaxScroll() int {
 }
 
 func (m menuModel) View() string {
+	var fixedWidth, fixedHeight int
+
+	if m.width < 90 {
+		fixedWidth = 70
+		fixedHeight = m.height - 6
+	} else if m.width < 120 {
+		fixedWidth = 85
+		fixedHeight = 28
+	} else {
+		fixedWidth = 100
+		fixedHeight = 30
+	}
+
+	if fixedWidth < 60 {
+		fixedWidth = 60
+	}
+	if fixedHeight < 18 {
+		fixedHeight = 18
+	}
+
 	var (
 		titleStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FFFFFF")).
@@ -96,12 +136,18 @@ func (m menuModel) View() string {
 				Border(lipgloss.NormalBorder()).
 				BorderForeground(lipgloss.Color("#FF6B35")).
 				Padding(1).
-				Width(m.width - 2)
+				Width(fixedWidth).
+				Height(fixedHeight)
 
 		footerStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#888888")).
 				Align(lipgloss.Center).
-				Width(m.width - 4)
+				Width(fixedWidth - 4)
+
+		centerStyle = lipgloss.NewStyle().
+				Width(m.width).
+				Height(m.height).
+				Align(lipgloss.Center, lipgloss.Center)
 	)
 
 	title := titleStyle.Render("Rudra | Portfolio")
@@ -116,12 +162,12 @@ func (m menuModel) View() string {
 	}
 
 	navigation := lipgloss.JoinHorizontal(lipgloss.Left, navItems...)
-	header := lipgloss.JoinHorizontal(lipgloss.Left, title, strings.Repeat(" ", 20), navigation)
+	header := lipgloss.JoinHorizontal(lipgloss.Left, title, strings.Repeat(" ", 10), navigation)
 
-	content := m.getContent()
+	content := m.getContent(fixedWidth)
 	contentLines := strings.Split(content, "\n")
 
-	availableHeight := m.height - 8
+	availableHeight := fixedHeight - 8
 	startLine := m.scrollOffset
 	endLine := startLine + availableHeight
 
@@ -137,23 +183,54 @@ func (m menuModel) View() string {
 	scrolledContent := strings.Join(visibleContent, "\n")
 
 	footerText := "Press 'q' to quit | ←→ menu | ↑↓ scroll"
-	if len(contentLines) > availableHeight {
-		footerText += fmt.Sprintf(" (%d/%d)", m.scrollOffset+1, len(contentLines)-availableHeight+1)
-	}
 	footer := footerStyle.Render(footerText)
 
 	body := lipgloss.JoinVertical(lipgloss.Left,
 		header,
-		strings.Repeat("-", m.width-4),
+		strings.Repeat("-", fixedWidth-4),
 		scrolledContent,
 		"",
 		footer,
 	)
 
-	return borderStyle.Render(body)
+	borderedContent := borderStyle.Render(body)
+
+	return centerStyle.Render(borderedContent)
 }
 
-func (m menuModel) getContent() string {
+func arrangeSkillBoxes(skills []string, skillBoxStyle lipgloss.Style, containerWidth int) string {
+	if len(skills) == 0 {
+		return ""
+	}
+
+	boxesPerRow := containerWidth / 15
+	if boxesPerRow < 1 {
+		boxesPerRow = 1
+	}
+	if boxesPerRow > len(skills) {
+		boxesPerRow = len(skills)
+	}
+
+	var rows []string
+	for i := 0; i < len(skills); i += boxesPerRow {
+		end := i + boxesPerRow
+		if end > len(skills) {
+			end = len(skills)
+		}
+
+		var rowBoxes []string
+		for j := i; j < end; j++ {
+			rowBoxes = append(rowBoxes, skillBoxStyle.Render(skills[j]))
+		}
+
+		row := lipgloss.JoinHorizontal(lipgloss.Left, rowBoxes...)
+		rows = append(rows, row)
+	}
+
+	return lipgloss.JoinVertical(lipgloss.Left, rows...)
+}
+
+func (m menuModel) getContent(fixedWidth int) string {
 	var (
 		contentStyle = lipgloss.NewStyle().
 				Foreground(lipgloss.Color("#FFFFFF")).
@@ -170,15 +247,27 @@ func (m menuModel) getContent() string {
 				Padding(0, 1).
 				Margin(0, 1).
 				Foreground(lipgloss.Color("#FFFFFF"))
+
+		bannerStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FF6B35")).
+				Align(lipgloss.Center).
+				Bold(true)
 	)
 
 	switch m.cursor {
 	case 0:
-		return contentStyle.Render(`
-Welcome to my Terminal Portfolio!
+		responsiveBannerStyle := bannerStyle.Width(fixedWidth - 10)
+		bannerText := responsiveBannerStyle.Render(banner.Banner())
 
-I'm a full stack developer passionate about creating amazing software.
-Navigate through the sections to learn more about me and my work.`)
+		subtitleStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFFFF")).
+			Align(lipgloss.Center).
+			Bold(true).
+			Padding(1, 0).
+			Width(fixedWidth - 10)
+
+		subtitle := subtitleStyle.Render("21 | Developer")
+		return lipgloss.JoinVertical(lipgloss.Center, bannerText, subtitle)
 
 	case 1:
 		aboutTitle := sectionTitleStyle.Render("# About Me")
@@ -188,59 +277,31 @@ Navigate through the sections to learn more about me and my work.`)
 
 		langTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Languages")
 		languages := []string{"Python", "C", "JavaScript", "TypeScript", "Go"}
-		var langBoxes []string
-		for _, lang := range languages {
-			langBoxes = append(langBoxes, skillBoxStyle.Render(lang))
-		}
-		langRow := lipgloss.JoinHorizontal(lipgloss.Left, langBoxes...)
+		langRow := arrangeSkillBoxes(languages, skillBoxStyle, fixedWidth-10)
 
 		fwTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Frameworks & Libraries")
 		frameworks := []string{"ReactJS", "NextJS", "ExpressJS", "Nest Js", "Gin", "GraphQL"}
-		var fwBoxes []string
-		for _, fw := range frameworks {
-			fwBoxes = append(fwBoxes, skillBoxStyle.Render(fw))
-		}
-		fwRow := lipgloss.JoinHorizontal(lipgloss.Left, fwBoxes...)
+		fwRow := arrangeSkillBoxes(frameworks, skillBoxStyle, fixedWidth-10)
 
 		stateTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## State Management & Styling")
 		stateTools := []string{"Zustand", "Recoil", "Tailwind CSS"}
-		var stateBoxes []string
-		for _, state := range stateTools {
-			stateBoxes = append(stateBoxes, skillBoxStyle.Render(state))
-		}
-		stateRow := lipgloss.JoinHorizontal(lipgloss.Left, stateBoxes...)
+		stateRow := arrangeSkillBoxes(stateTools, skillBoxStyle, fixedWidth-10)
 
 		toolsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Development Tools")
 		devTools := []string{"Git", "Jest", "Vitest"}
-		var devBoxes []string
-		for _, tool := range devTools {
-			devBoxes = append(devBoxes, skillBoxStyle.Render(tool))
-		}
-		devRow := lipgloss.JoinHorizontal(lipgloss.Left, devBoxes...)
+		devRow := arrangeSkillBoxes(devTools, skillBoxStyle, fixedWidth-10)
 
 		dbTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Databases & Cloud")
 		databases := []string{"PostgreSQL", "Mongo DB", "Redis", "Supabase", "Prisma", "Drizzle"}
-		var dbBoxes []string
-		for _, db := range databases {
-			dbBoxes = append(dbBoxes, skillBoxStyle.Render(db))
-		}
-		dbRow := lipgloss.JoinHorizontal(lipgloss.Left, dbBoxes...)
+		dbRow := arrangeSkillBoxes(databases, skillBoxStyle, fixedWidth-10)
 
 		monTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## Monitoring & Messaging")
 		monitoring := []string{"Prometheus", "Grafana", "Kafka"}
-		var monBoxes []string
-		for _, mon := range monitoring {
-			monBoxes = append(monBoxes, skillBoxStyle.Render(mon))
-		}
-		monRow := lipgloss.JoinHorizontal(lipgloss.Left, monBoxes...)
+		monRow := arrangeSkillBoxes(monitoring, skillBoxStyle, fixedWidth-10)
 
 		devopsTitle := lipgloss.NewStyle().Foreground(lipgloss.Color("#CCCCCC")).Bold(true).Render("## DevOps")
 		devopsTools := []string{"Docker", "Kubernetes", "CI/CD", "Nginx", "AWS EC2", "AWS S3", "AWS ECS"}
-		var devopsBoxes []string
-		for _, devops := range devopsTools {
-			devopsBoxes = append(devopsBoxes, skillBoxStyle.Render(devops))
-		}
-		devopsRow := lipgloss.JoinHorizontal(lipgloss.Left, devopsBoxes...)
+		devopsRow := arrangeSkillBoxes(devopsTools, skillBoxStyle, fixedWidth-10)
 
 		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
 			aboutTitle,

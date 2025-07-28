@@ -343,13 +343,66 @@ func (m menuModel) getContent(fixedWidth int) string {
 
 	case 2:
 		projectTitle := sectionTitleStyle.Render("# My Projects")
+
+		projectHeadingStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FF6B35")).
+			Bold(true).
+			Padding(0, 0, 0, 0)
+
+		projectDescStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#CCCCCC")).
+			Padding(0, 0, 1, 0)
+
+		techLabelStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#AAAAAA")).
+			Italic(true)
+
+		project1Title := projectHeadingStyle.Render("## Terminal Portfolio")
+		project1Desc := projectDescStyle.Render("Interactive SSH-based portfolio application built with modern terminal UI")
+		project1TechLabel := techLabelStyle.Render("Technologies:")
+		project1Tech := []string{"Go", "Wish", "Bubbletea", "Lipgloss", "SSH"}
+		project1TechRow := arrangeSkillBoxes(project1Tech, skillBoxStyle, fixedWidth-10)
+
+		project2Title := projectHeadingStyle.Render("## AI PPT Generator")
+		project2Desc := projectDescStyle.Render("AI-powered presentation generator with modern web interface and backend processing")
+		project2TechLabel := techLabelStyle.Render("Technologies:")
+		project2Tech := []string{"Next.js", "TypeScript", "Go", "Redis", "PostgreSQL", "Prisma", "Gemini AI", "Pub Sub", "Node.js"}
+		project2TechRow := arrangeSkillBoxes(project2Tech, skillBoxStyle, fixedWidth-10)
+
+		project3Title := projectHeadingStyle.Render("## Adda AI")
+		project3Desc := projectDescStyle.Render("Full-stack AI chat application enabling conversations with AI characters")
+		project3TechLabel := techLabelStyle.Render("Technologies:")
+		project3Tech := []string{"React", "Next.js", "Nest.js", "Docker", "PostgreSQL", "Prisma", "Turborepo"}
+		project3TechRow := arrangeSkillBoxes(project3Tech, skillBoxStyle, fixedWidth-10)
+
+		project4Title := projectHeadingStyle.Render("## Real-time Chat")
+		project4Desc := projectDescStyle.Render("WebSocket-based chat application with pub/sub messaging architecture")
+		project4TechLabel := techLabelStyle.Render("Technologies:")
+		project4Tech := []string{"WebSocket", "Redis", "Pub/Sub", "Node.js", "React"}
+		project4TechRow := arrangeSkillBoxes(project4Tech, skillBoxStyle, fixedWidth-10)
+
 		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
 			projectTitle,
 			"",
-			"Terminal Portfolio - Interactive SSH-based portfolio using Go, Wish, and Bubbletea",
-			"AI PPT generator - AI PPT generator made using Next js,Typescript,Go,Redis,PostgreSQL",
-			"Adda AI - Full stack ai chat app, chat with ai characters",
-			"Real-time Chat - WebSocket-based chat application with Redis pub/sub",
+			project1Title,
+			project1Desc,
+			project1TechLabel,
+			project1TechRow,
+			"",
+			project2Title,
+			project2Desc,
+			project2TechLabel,
+			project2TechRow,
+			"",
+			project3Title,
+			project3Desc,
+			project3TechLabel,
+			project3TechRow,
+			"",
+			project4Title,
+			project4Desc,
+			project4TechLabel,
+			project4TechRow,
 		))
 
 	case 3:

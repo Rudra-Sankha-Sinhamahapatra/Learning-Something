@@ -69,21 +69,27 @@ func (m menuModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m menuModel) getMaxScroll() int {
-	var fixedHeight int
+	var fixedWidth, fixedHeight int
 
 	if m.width < 90 {
+		fixedWidth = 70
 		fixedHeight = m.height - 6
 	} else if m.width < 120 {
+		fixedWidth = 85
 		fixedHeight = 28
 	} else {
+		fixedWidth = 100
 		fixedHeight = 30
 	}
 
+	if fixedWidth < 60 {
+		fixedWidth = 60
+	}
 	if fixedHeight < 18 {
 		fixedHeight = 18
 	}
 
-	content := m.getContent(70)
+	content := m.getContent(fixedWidth)
 	contentLines := strings.Split(content, "\n")
 	availableHeight := fixedHeight - 8
 
@@ -407,16 +413,104 @@ func (m menuModel) getContent(fixedWidth int) string {
 
 	case 3:
 		contactTitle := sectionTitleStyle.Render("# Get In Touch")
-		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left,
+
+		contactHeadingStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FF6B35")).
+			Bold(true).
+			Padding(0, 0, 0, 0)
+
+		contactItemStyle := lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#FF6B35")).
+			Padding(1, 2).
+			Margin(0, 1, 1, 0).
+			Foreground(lipgloss.Color("#FFFFFF")).
+			Width(fixedWidth/2 - 8)
+
+		contactLabelStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FF6B35")).
+			Bold(true)
+
+		contactValueStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#CCCCCC")).
+			Padding(0, 0, 0, 1)
+
+		callToActionStyle := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFFFFF")).
+			Background(lipgloss.Color("#FF6B35")).
+			Padding(1, 2).
+			Margin(1, 0).
+			Bold(true).
+			Align(lipgloss.Center).
+			Width(fixedWidth - 10)
+
+		emailCard := contactItemStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				contactLabelStyle.Render("Email"),
+				contactValueStyle.Render("workforrudra24@gmail.com"),
+			),
+		)
+
+		githubCard := contactItemStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				contactLabelStyle.Render("GitHub"),
+				contactValueStyle.Render("Rudra-Sankha-Sinhamahapatra"),
+			),
+		)
+
+		linkedinCard := contactItemStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				contactLabelStyle.Render("LinkedIn"),
+				contactValueStyle.Render("https://www.linkedin.com/in/rudra-sankha-sinhamahapatra-6311aa1bb/"),
+			),
+		)
+
+		twitterCard := contactItemStyle.Render(
+			lipgloss.JoinVertical(lipgloss.Left,
+				contactLabelStyle.Render("Twitter"),
+				contactValueStyle.Render("@RudraSankha"),
+			),
+		)
+
+		var contactRows []string
+		if fixedWidth >= 80 {
+			row1 := lipgloss.JoinHorizontal(lipgloss.Left, emailCard, githubCard)
+			row2 := lipgloss.JoinHorizontal(lipgloss.Left, linkedinCard, twitterCard)
+			contactRows = []string{row1, row2}
+		} else {
+			contactRows = []string{emailCard, githubCard, linkedinCard, twitterCard}
+		}
+
+		availabilityTitle := contactHeadingStyle.Render("## Current Status")
+		availabilityText := lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#90EE90")).
+			Bold(true).
+			Render("Open to opportunities")
+
+		responseTitle := contactHeadingStyle.Render("## Response Time")
+		responseText := contactValueStyle.Render("Usually respond within 24 hours")
+
+		callToAction := callToActionStyle.Render("»  Feel free to reach out if you are hiring or just to say hi!")
+
+		contactElements := []string{
 			contactTitle,
 			"",
-			"Email: workforrudra24@gmail.com",
-			"GitHub: https://github.com/Rudra-Sankha-Sinhamahapatra",
-			"LinkedIn: https://www.linkedin.com/in/rudra-sankha-sinhamahapatra-6311aa1bb/",
-			"Twitter: https://x.com/RudraSankha",
+		}
+
+		contactElements = append(contactElements, contactRows...)
+
+		contactElements = append(contactElements,
 			"",
-			"Feel free to reach out for collaborations or just to say hi!",
-		))
+			availabilityTitle,
+			availabilityText,
+			"",
+			responseTitle,
+			responseText,
+			"",
+			callToAction,
+		)
+
+		return contentStyle.Render(lipgloss.JoinVertical(lipgloss.Left, contactElements...))
 
 	default:
 		return contentStyle.Render("Select a menu item to view content.")

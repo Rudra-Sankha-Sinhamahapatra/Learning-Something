@@ -15,7 +15,7 @@ func main() {
 			for i := range 5 {
 				fmt.Println("inner", i)
 			}
-			wg.Done()
+			defer wg.Done()
 		}()
 	}
 

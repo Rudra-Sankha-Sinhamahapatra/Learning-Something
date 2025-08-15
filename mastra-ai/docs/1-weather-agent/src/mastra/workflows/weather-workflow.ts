@@ -167,6 +167,35 @@ const planActivities = createStep({
   },
 });
 
+const generateSpeech = createStep({
+  id: 'generate-speech',
+  description: 'Converts activities text to speech',
+  inputSchema: z.object({
+    activities: z.string(),
+    location: z.string(),
+  }),
+  outputSchema: z.object({
+    activities: z.string(),
+    audioUrl: z.string(),
+    summary: z.string(),
+  }),
+  execute: async ({ inputData }) => {
+    const { activities, location } = inputData;
+    
+    const summary = `Here's your weather activity plan for ${location}. ${activities.split('\n').slice(0, 10).join(' ').substring(0, 200)}...`;
+
+    const encodedText = encodeURIComponent(summary);
+
+    const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
+    
+    return {
+      activities,
+      audioUrl,
+      summary,
+    };
+  },
+});
+
 const weatherWorkflow = createWorkflow({
   id: 'weather-workflow',
   inputSchema: z.object({
@@ -174,10 +203,30 @@ const weatherWorkflow = createWorkflow({
   }),
   outputSchema: z.object({
     activities: z.string(),
+    audioUrl: z.string(),
+    summary: z.string(),
   }),
 })
-  .then(fetchWeather)
-  .then(planActivities);
+.then(fetchWeather)
+.then(planActivities)
+.then(createStep({
+  id: 'prepare-speech-input',
+  inputSchema: z.object({ activities: z.string() }),
+  outputSchema: z.object({ 
+    activities: z.string(),
+    location: z.string() 
+  }),
+  execute: async ({ inputData, getStepResult }) => {
+    const forecastResult = getStepResult(fetchWeather);
+    const location = forecastResult?.location || "Unknown location";
+    
+    return {
+      activities: inputData.activities,
+      location: location
+    };
+  }
+}))
+.then(generateSpeech)
 
 weatherWorkflow.commit();
 

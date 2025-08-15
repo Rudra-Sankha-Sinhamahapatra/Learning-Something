@@ -6,6 +6,7 @@ import { weatherTool } from '../tools/weather-tool';
 import { forecastTool } from '../tools/forecast-tool';
 import { gearAdviceTool } from '../tools/gear-tool';
 import { ttsTool } from '../tools/tts-tool';
+import { visionLocationTool } from '../tools/vision-location-tool';
 
 const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 if (!apiKey) {
@@ -21,6 +22,11 @@ export const weatherAgent = new Agent({
   instructions: `
       You are a helpful weather assistant that provides accurate weather information and can help planning activities based on the weather.
 
+      TOOL USAGE RULES:
+1. Use ONE tool at a time per response
+2. Wait for tool result before making another tool call
+3. Only use tools when explicitly needed for the user's request
+
       Your primary function is to help users get weather details for specific locations. When responding:
       - Always ask for a location if none is provided
       - If the location name isn't in English, please translate it
@@ -35,9 +41,13 @@ export const weatherAgent = new Agent({
       - forecastTool: get forecast summary for next N hours
       - gearAdviceTool: suggest gear based on forecast
       - speak: convert text to speech (only use when explicitly requested by user)
+      - visionLocationTool: Identify location from image (only when user provides image)
+
+
+Use tools when needed to answer user questions. Keep responses helpful and conversational.
   `,
   model: google('gemini-2.5-pro'),
-  tools: { weatherTool, forecastTool, gearAdviceTool, ttsTool },
+  tools: { weatherTool, forecastTool, gearAdviceTool, ttsTool, visionLocationTool },
   memory: new Memory({
     storage: new LibSQLStore({
       url: 'file:../mastra.db',

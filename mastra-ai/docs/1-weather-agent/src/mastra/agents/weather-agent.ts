@@ -5,6 +5,7 @@ import { LibSQLStore } from '@mastra/libsql';
 import { weatherTool } from '../tools/weather-tool';
 import { forecastTool } from '../tools/forecast-tool';
 import { gearAdviceTool } from '../tools/gear-tool';
+import { ttsTool } from '../tools/tts-tool';
 
 const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 if (!apiKey) {
@@ -29,13 +30,17 @@ export const weatherAgent = new Agent({
       - If the user asks for activities and provides the weather forecast, suggest activities based on the weather forecast.
       - If the user asks for activities, respond in the format they request.
 
-      Use the weatherTool to fetch current weather data.
-`,
+      Available tools:
+      - weatherTool: fetch current weather data
+      - forecastTool: get forecast summary for next N hours
+      - gearAdviceTool: suggest gear based on forecast
+      - speak: convert text to speech (only use when explicitly requested by user)
+  `,
   model: google('gemini-2.5-pro'),
-  tools: { weatherTool, forecastTool, gearAdviceTool },
+  tools: { weatherTool, forecastTool, gearAdviceTool, ttsTool },
   memory: new Memory({
     storage: new LibSQLStore({
-      url: 'file:../mastra.db', // path is relative to the .mastra/output directory
+      url: 'file:../mastra.db',
     }),
   }),
 });

@@ -16,6 +16,14 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "web#build": {
+      "dependsOn": ["^build"],
+      "env": [
+        "DATABASE_URL",
+        "NEXT_PUBLIC_API_URL"
+      ],
+      "outputs": [".next/**", "!.next/cache/**"]
     }
   }
 }

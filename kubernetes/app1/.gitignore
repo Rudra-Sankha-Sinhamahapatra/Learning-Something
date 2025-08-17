@@ -5,6 +5,14 @@ node_modules
 .pnp
 .pnp.js
 
+#K8 Secret
+nextjs-env.yaml
+
+# Docker images
+*.tar
+nextjs-app:latest
+
+
 # Local env files
 .env
 .env.local

@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.env.production
+.env.development
+*.log
+.DS_Store
+README.md
+coverage
+.nyc_output
+.vscode
+.idea
+dist
+build

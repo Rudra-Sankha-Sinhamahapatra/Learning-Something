@@ -1,14 +1,121 @@
-# Turborepo starter
+# Kubernetes Next.js App with Turborepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+This is a Next.js application deployed on Kubernetes with sealed secrets for environment variables.
 
-## Using this example
+## Quick Start
 
-Run the following command:
+To run this application locally with Kubernetes:
 
 ```sh
-npx create-turbo@latest
+# 1. Build and run the Docker container
+docker build -t nextjs-app:latest -f docker/Dockerfile.web .
+
+# 2. Apply Kubernetes manifests
+kubectl apply -f k8s/nextjs-env-sealed.yaml
+kubectl apply -f k8s/web-deployment.yaml
+
+# 3. Access from other devices (recommended for development)
+kubectl port-forward --address 0.0.0.0 svc/nextjs-service 3000:3000
+
+# Then access from any device: http://YOUR_MACHINE_IP:3000
 ```
+
+## Kubernetes Setup Details
+
+### Environment Variables (Sealed Secrets)
+
+This app uses Kubernetes Sealed Secrets for secure environment variable management:
+
+- `nextjs-env.yaml` - Raw secrets (DO NOT commit to Git)
+- `k8s/nextjs-env-sealed.yaml` - Encrypted secrets (safe to commit)
+
+#### First Time Setup:
+
+1. **Install sealed-secrets controller**:
+   ```sh
+   kubectl apply -f https://github.com/bitnami-labs/sealed-secrets/releases/download/v0.18.0/controller.yaml
+   ```
+
+2. **Install kubeseal CLI** (macOS):
+   ```sh
+   brew install kubeseal
+   ```
+
+3. **Create your raw secrets file** (`nextjs-env.yaml`):
+   ```yaml
+   apiVersion: v1
+   kind: Secret
+   metadata:
+     name: nextjs-env
+   type: Opaque
+   data:
+     DATABASE_URL: <base64-encoded-database-url>
+     NEXT_PUBLIC_API_URL: <base64-encoded-api-url>
+   ```
+
+4. **Generate base64 values**:
+   ```sh
+   echo -n "postgres://user:pass@db:5432/mydb" | base64
+   echo -n "https://api.local.dev" | base64
+   ```
+
+5. **Create sealed secret**:
+   ```sh
+   kubeseal -f nextjs-env.yaml -w k8s/nextjs-env-sealed.yaml
+   ```
+
+#### To update environment variables:
+1. Edit your raw secrets in `nextjs-env.yaml`
+2. Create sealed secret: `kubeseal -f nextjs-env.yaml -w k8s/nextjs-env-sealed.yaml`
+3. Apply: `kubectl apply -f k8s/nextjs-env-sealed.yaml`
+
+### Docker Build
+
+```sh
+# Build the Docker image
+docker build -t nextjs-app:latest -f docker/Dockerfile.web .
+
+# Check image
+docker images | grep nextjs-app
+```
+
+### Kubernetes Deployment
+
+```sh
+# Apply all manifests
+kubectl apply -f k8s/
+
+# Check status
+kubectl get pods,svc,secrets
+
+# View logs
+kubectl logs -l app=nextjs-app
+
+# Delete everything
+kubectl delete -f k8s/
+```
+
+### Access Methods
+
+1. **Development (External Access)**:
+   ```sh
+   kubectl port-forward --address 0.0.0.0 svc/nextjs-service 3000:3000
+   # Access: http://YOUR_MACHINE_IP:3000
+   ```
+
+2. **Local Only**:
+   ```sh
+   kubectl port-forward svc/nextjs-service 3000:3000
+   # Access: http://localhost:3000
+   ```
+
+3. **Production**: Use Ingress or LoadBalancer service
+
+### Troubleshooting
+
+- **Pod not starting**: `kubectl describe pod <pod-name>`
+- **Service issues**: `kubectl describe svc nextjs-service`
+- **Secrets issues**: `kubectl get secrets` and check sealed-secrets controller
 
 ## What's inside?
 

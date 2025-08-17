@@ -1,12 +1,11 @@
 import express from "express";
 import  type { Request, Response } from "express"
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "./db/prisma"
 import Redis from "ioredis";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { config } from "./config";
 
-const prisma = new PrismaClient();
 const redis = new Redis(config.redis!);
 const app = express();
 

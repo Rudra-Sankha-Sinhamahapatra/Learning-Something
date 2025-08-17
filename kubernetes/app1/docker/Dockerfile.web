@@ -1,0 +1,23 @@
+FROM oven/bun:1 AS base
+WORKDIR /app
+
+COPY package.json bun.lock turbo.json  ./
+COPY apps/web/package.json ./apps/web/
+COPY packages ./packages
+
+RUN bun install --frozen-lockfile
+
+COPY apps/web ./apps/web
+
+
+RUN bun run --cwd apps/web build
+
+FROM oven/bun:1
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=base /app/apps/web ./
+COPY --from=base /app/node_modules ./node_modules
+
+EXPOSE 3000
+CMD ["bun", "run", "start", "--", "-H", "0.0.0.0"]

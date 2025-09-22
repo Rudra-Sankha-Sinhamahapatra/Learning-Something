@@ -14,3 +14,12 @@ class TicketResponse(BaseModel):
       
     class Config:
         from_attributes = True
+
+
+class TicketUpdate(BaseModel):
+    status: TicketStatus
+    answer: Optional[str] = None
+
+class TicketDeleteResponse(BaseModel):
+    message: str
+    ticket: TicketResponse  

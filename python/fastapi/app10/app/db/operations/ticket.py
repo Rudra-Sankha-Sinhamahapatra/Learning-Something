@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from ...models.ticket import Ticket
+from ...models.ticket import Ticket,TicketStatus
 from ...schemas.ticket import TicketCreate
 from fastapi import Depends
 from .. import database
@@ -18,3 +18,31 @@ def create_ticket(ticket:TicketCreate, user_id:int, db : Session = Depends(datab
     db.commit()
     db.refresh(new_ticket)
     return new_ticket
+
+
+def update_ticket(db: Session, ticket_id: str, status: TicketStatus,answer: str, user_id: int):
+    ticket = db.query(Ticket).filter(
+        Ticket.id == ticket_id,
+        Ticket.user_id == user_id
+    ).first()
+    if not ticket:
+        return None
+    ticket.status = status
+    ticket.answer = answer
+    db.commit()
+    db.refresh(ticket)
+    return ticket
+
+def delete_ticket(db: Session, ticket_id: str, user_id:int):
+    ticket = db.query(Ticket).filter(
+        Ticket.id == ticket_id,
+        Ticket.user_id == user_id
+    ).first()
+    if not ticket:
+        return None
+    db.delete(ticket)
+    db.commit()
+    return {
+        "message": "Ticket Deleted Successfully",
+        "ticket": ticket  
+    }

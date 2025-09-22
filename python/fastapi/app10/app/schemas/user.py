@@ -18,6 +18,8 @@ class UserResponse(BaseModel):
     id: int
     name: str
     email: EmailStr
+    access_token: str
+    token_type: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True

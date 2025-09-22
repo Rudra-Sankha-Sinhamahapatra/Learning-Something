@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from .db.database import engine
-from .models.user import User
 from .db.database import Base
-from .routes import user
+from .routes import user,ticket
 
 Base.metadata.create_all(bind=engine)
 
@@ -14,4 +13,5 @@ def root():
     return {"msg":"Hello"}
 
 app.include_router(user.router)
+app.include_router(ticket.router)
 

@@ -1,16 +1,17 @@
 import os
 from fastapi import FastAPI
 from pydantic import BaseModel
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain.chains import ConversationalRetrievalChain
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.chat_models import ChatOpenAI
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
-from langchain_community.document_loaders import TextLoader
 from dotenv import load_dotenv
+import random
 
 load_dotenv()
 
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 os.environ["OPENAI_API_KEY"] = os.getenv("GROQ_API_KEY")
 os.environ["OPENAI_BASE_URL"] = "https://api.groq.com/openai/v1"
 
@@ -18,13 +19,21 @@ app = FastAPI()
 
 embedding_model = HuggingFaceEmbeddings(model_name = "BAAI/bge-small-en-v1.5")
 
+
+AVAILABLE_MODELS = [
+    "groq/compound-mini",
+    "llama-3.1-8b-instant",
+    "gemma2-9b-it"
+]
+
 persist_directory = './chroma'
 os.makedirs(persist_directory, exist_ok=True)
 
 vectordb = Chroma(persist_directory=persist_directory,embedding_function=embedding_model)
 memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
 
-llm = ChatOpenAI(model="llama3-70b-8192", temperature=0.7)
+selected_model = random.choice(AVAILABLE_MODELS)
+llm = ChatOpenAI(model=selected_model, temperature=0.7)
 
 qa_chain = ConversationalRetrievalChain.from_llm(
     llm = llm,
@@ -41,5 +50,6 @@ def root():
 
 @app.post("/chat")
 def chat_with_memory(user_input: ChatInput):
-    response = qa_chain.run(user_input.message)
+    result = qa_chain.invoke({"question": user_input.message})
+    response = result['answer']
     return {"user": user_input.message, "response": response}

@@ -3,7 +3,8 @@ from ...models.ticket import Ticket,TicketStatus
 from ...schemas.ticket import TicketCreate
 from fastapi import Depends
 from .. import database
- 
+from ...core.ai  import generate_answer
+
 def get_tickets_for_user(db: Session, user_id: int):
     return db.query(Ticket).filter(Ticket.user_id == user_id).all()
 
@@ -11,7 +12,7 @@ def create_ticket(ticket:TicketCreate, user_id:int, db : Session = Depends(datab
     new_ticket = Ticket(
         question=ticket.question,
         answer=None,
-        status="PENDING",
+        status=TicketStatus.PENDING,
         user_id=user_id
     )
     db.add(new_ticket)
@@ -27,6 +28,10 @@ def update_ticket(db: Session, ticket_id: str, status: TicketStatus,answer: str,
     ).first()
     if not ticket:
         return None
+    if answer is None and status == TicketStatus.PENDING:
+        answer = generate_answer(ticket.question)
+        status = TicketStatus.COMPLETED
+
     ticket.status = status
     ticket.answer = answer
     db.commit()

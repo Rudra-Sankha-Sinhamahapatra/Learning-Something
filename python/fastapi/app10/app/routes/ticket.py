@@ -4,7 +4,7 @@ from ..schemas.ticket import TicketCreate, TicketResponse, TicketUpdate, TicketD
 from ..controllers.ticket import (
     create_ticket as create_ticket_controller,
     get_tickets as get_tickets_controller,
-    update_ticket as update_ticket_controller, delete_ticket as delete_ticket_controller
+    update_ticket as update_ticket_controller, delete_ticket as delete_ticket_controller, get_ticket as get_tickets_byid_controller
 )
 from ..middleware.auth import get_current_user
 from ..db.database import get_db
@@ -60,3 +60,14 @@ def delete_ticket(
         raise HTTPException(status_code=404, detail="Ticket not found")
     return ticket
 
+
+@router.get("/get/{ticket_id}", response_model=TicketResponse)
+def get_ticket(
+    ticket_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    ticket = get_tickets_byid_controller(ticket_id, current_user.id, db)
+    if not ticket:
+        raise HTTPException(status_code=404, detail="Ticket not found")
+    return ticket

@@ -1,4 +1,4 @@
-from sqlalchemy import Column,String,Integer,ForeignKey, Enum as SqlEnum
+from sqlalchemy import Column,String,Integer,ForeignKey, Enum as SqlEnum, DateTime, func
 from sqlalchemy.orm import relationship
 from ..db.database import Base
 from enum import Enum as PyEnum
@@ -21,4 +21,8 @@ class Ticket(Base):
     
     user_id = Column(Integer, ForeignKey("users.id",ondelete="CASCADE"),nullable=False)
     user = relationship("User", back_populates="tickets")
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
 

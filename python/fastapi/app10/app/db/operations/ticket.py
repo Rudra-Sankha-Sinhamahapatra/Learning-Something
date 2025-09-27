@@ -51,3 +51,9 @@ def delete_ticket(db: Session, ticket_id: str, user_id:int):
         "message": "Ticket Deleted Successfully",
         "ticket": ticket  
     }
+
+def get_ticket_by_id(db: Session, ticket_id: str, user_id: int):
+    return db.query(Ticket).filter(
+        Ticket.id == ticket_id,
+        Ticket.user_id == user_id
+    ).first()

@@ -13,3 +13,6 @@ def update_ticket(ticket_id: str, status: TicketStatus, answer: str, user_id: in
 
 def delete_ticket(ticket_id:str, user_id:int, db: Session):
     return ticket_ops.delete_ticket(db,ticket_id,user_id)
+
+def get_ticket(ticket_id: str, user_id: int, db: Session):
+    return ticket_ops.get_ticket_by_id(db, ticket_id, user_id)

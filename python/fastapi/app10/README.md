@@ -1,6 +1,7 @@
-# FastAPI Auth Example
+# AI Ticket Resolver 
 
-This project is a FastAPI application with user authentication (signup & signin) using PostgreSQL, SQLAlchemy, Pydantic, and bcrypt.
+This project is a FastAPI application with user authentication and a ticketing system.
+It integrates AI (via Groq API) to automatically answer user tickets in the background.
 
 ## Tech Stack
 
@@ -10,6 +11,9 @@ This project is a FastAPI application with user authentication (signup & signin)
 - **Pydantic**: Data validation and serialization
 - **bcrypt**: Password hashing
 - **Uvicorn**: ASGI server
+- **Alembic**: Database migrations
+- **JWT**: Authentication middleware
+- **Groq API**:  AI model integration (LLaMA, Qwen, etc.)
 
 ## Environment Variables
 
@@ -17,6 +21,7 @@ Create a `.env` file in the project root:
 
 ```env
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/postgres
+GROQ_API_KEY=your_groq_api_key_here
 PORT=8000
 ```
 
@@ -33,6 +38,20 @@ PORT=8000
 	 # Or, if requirements.txt is missing:
 	 pip install fastapi uvicorn sqlalchemy psycopg2-binary pydantic "pydantic[email]" python-dotenv bcrypt
 	 ```
+
+## Database Setup
+
+- Ensure PostgreSQL is running and accessible.
+
+- Initialize Alembic:
+
+```
+alembic revision --autogenerate -m "init"
+alembic upgrade head
+```
+
+
+This applies your models (Users, Tickets) to the database.
 
 ## How to Run
 
@@ -91,21 +110,99 @@ Response:
 }
 ```
 
+## Ticket System
+
+- Tickets are created with status = PENDING and answered by AI in the background.
+
+Create Ticket
+
+**POST** `/api/v1/tickets/create`
+Headers: `Authorization: Bearer <JWT_TOKEN>`
+
+Request:
+```json
+{
+  "question": "How to upgrade to the pro plan?"
+}
+```
+
+Immediate Response:
+
+```json
+{
+  "id": "uuid",
+  "question": "How to upgrade to the pro plan?",
+  "answer": null,
+  "status": "PENDING",
+  "created_at": "...",
+  "updated_at": "..."
+}
+```
+
+Later, AI fills in the answer automatically.
+
+### Get All Tickets
+
+**GET**  `/api/v1/tickets/getall`
+
+### Get Ticket By Id
+
+**GET** `/api/v1/tickets/get/{ticket_id}`
+
+### Update Ticket
+
+**PUT** `/api/v1/tickets/update/{ticket_id}`
+
+### Delete Ticket
+
+**DELETE** `/api/v1/tickets/delete/{ticket_id}`
+
+
+## AI Integration
+
+* AI is powered by **Groq API** models.
+* Current fallback models:
+
+  * `groq/compound`
+  * `moonshotai/kimi-k2-instruct-0905`
+  * `meta-llama/llama-guard-4-12b`
+  * `qwen/qwen3-32b`
+
+The assistant runs with a **system instruction**:
+
+> "You are an AI support assistant for our platform **w8w**, an automated workflow platform similar to n8n.
+> Help users with integrations, automations, troubleshooting, and best practices. Be concise and professional."
+
+
 ## Folder Structure
 
-- `app/main.py` - FastAPI app entry point
-- `app/models/user.py` - SQLAlchemy user model
-- `app/schemas/user.py` - Pydantic user schemas
-- `app/routes/user.py` - API routes for user
-- `app/controllers/auth.py` - Signup/signin logic
-- `app/db/database.py` - Database setup
-- `app/db/operations/user.py` - User DB operations
+
+```
+app/
+  main.py               # FastAPI entry point
+  models/               # SQLAlchemy models (User, Ticket)
+  schemas/              # Pydantic schemas
+  routes/               # API routes
+  controllers/          # Business logic
+  db/
+    database.py         # DB connection
+    operations/         # Queries & operations
+  core/
+    ai.py               # Groq AI integration
+    jwt.py              # Auth/JWT utils
+  middleware/
+    auth.py             # JWT-based auth middleware
+alembic/                # Migrations
+alembic.ini             # Alembic config
+```
 
 ## Notes
 
 - Passwords are hashed with bcrypt before storing in the database.
 - All environment variables are loaded from `.env` using python-dotenv.
 - You can test endpoints using Swagger UI at `/docs`.
+-  AI answers tickets asynchronously using **BackgroundTasks**.
+-  **Alembic** handles schema changes (`created_at`, `updated_at`, etc.).
 
 ---
 **Author:** Rudra Sankha Sinhamahapatra

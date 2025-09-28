@@ -3,7 +3,7 @@ from ...models.ticket import Ticket,TicketStatus
 from ...schemas.ticket import TicketCreate
 from fastapi import Depends
 from .. import database
-from ...core.ai  import generate_answer
+from ...core.ticket_ai  import ai_resolve_ticket
 
 def get_tickets_for_user(db: Session, user_id: int):
     return db.query(Ticket).filter(Ticket.user_id == user_id).all()
@@ -21,19 +21,24 @@ def create_ticket(ticket:TicketCreate, user_id:int, db : Session = Depends(datab
     return new_ticket
 
 
-def update_ticket(db: Session, ticket_id: str, status: TicketStatus,answer: str, user_id: int):
+def update_ticket(db: Session, ticket_id: str, user_id: int):
     ticket = db.query(Ticket).filter(
         Ticket.id == ticket_id,
         Ticket.user_id == user_id
     ).first()
     if not ticket:
         return None
-    if answer is None and status == TicketStatus.PENDING:
-        answer = generate_answer(ticket.question)
-        status = TicketStatus.COMPLETED
-
-    ticket.status = status
-    ticket.answer = answer
+    
+    if (ticket.status in [TicketStatus.PENDING, TicketStatus.FAIL]):
+        try:
+            ai_resolve_ticket(ticket.id, db)  
+        except Exception as e:
+            print("AI retry in update_ticket failed:", e)
+            ticket.status = TicketStatus.FAIL
+            ticket.answer = ticket.answer or "AI could not generate an answer"
+    else:
+          ticket.status = TicketStatus.FAIL
+          ticket.answer = "AI could not generate an answer"
     db.commit()
     db.refresh(ticket)
     return ticket

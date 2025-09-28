@@ -30,3 +30,13 @@ class TicketDeleteResponse(BaseModel):
 class TicketGetResponse(BaseModel):
     message: str
     ticket: TicketResponse
+
+
+class TicketState(BaseModel):
+    question: str
+    category: str | None = None
+    context: str | None = None
+    answer: str | None = None
+
+    class Config:
+        extra = "ignore"

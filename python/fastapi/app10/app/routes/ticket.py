@@ -9,7 +9,7 @@ from ..controllers.ticket import (
 from ..middleware.auth import get_current_user
 from ..db.database import get_db
 from ..models.user import User
-from ..core.ai import ai_resolve_ticket
+from ..core.ticket_ai import ai_resolve_ticket
 
 router = APIRouter(prefix="/api/v1/tickets", tags=["Tickets"])
 
@@ -36,12 +36,11 @@ def list_tickets(
 @router.put("/update/{ticket_id}", response_model=TicketResponse)
 def update_ticket(
     ticket_id: str,
-    ticket_update: TicketUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     ticket = update_ticket_controller(
-        ticket_id, ticket_update.status, ticket_update.answer, current_user.id, db
+        ticket_id,current_user.id, db
     )
     if not ticket:
         raise HTTPException(status_code=404, detail="Ticket not found")

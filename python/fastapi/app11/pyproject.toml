@@ -1,0 +1,15 @@
+[project]
+name = "app11"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.16.5",
+    "dotenv>=0.9.9",
+    "faiss-cpu>=1.12.0",
+    "langchain>=0.3.27",
+    "langgraph>=0.6.8",
+    "pgvector>=0.4.1",
+    "psycopg2-binary>=2.9.10",
+]

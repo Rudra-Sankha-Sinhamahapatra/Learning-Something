@@ -3,7 +3,7 @@ from sqlalchemy import Column, String, DateTime, ForeignKey, Enum, JSON, Table, 
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from pgvector.sqlalchemy import Vector
+from pgvector.sqlalchemy import Vector # type: ignore
 import uuid
 
 user_interests = Table(
@@ -16,8 +16,9 @@ user_interests = Table(
 class User(Base):
     __tablename__ = "users"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    email = Column(String, unique=True, nullable=False)
-    password_hash = Column(String, nullable=False)
+    name = Column(String(60))
+    email = Column(String(60), unique=True, nullable=False)
+    password_hash = Column(String(255), nullable=False)
 
     documents = relationship("Document", back_populates="user")
     interests = relationship("Interest", secondary=user_interests, back_populates="users")
@@ -26,7 +27,7 @@ class Document(Base):
     __tablename__ = "documents"
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))
-    title = Column(String)
+    title = Column(String(60))
     content = Column(String)
     source_type = Column(Enum("pdf","url","tweet","note",name="source_types"))
     document_metadata = Column(JSON)

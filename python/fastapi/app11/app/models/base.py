@@ -33,7 +33,7 @@ class Document(Base):
     document_metadata = Column(JSON)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    embedding = Column(Vector(1536))
+    embedding = Column(Vector(384))
 
     user = relationship("User", back_populates="documents")
 

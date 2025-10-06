@@ -7,6 +7,8 @@ from alembic import context
 import os
 from dotenv import load_dotenv
 from app.models import base
+import pgvector.sqlalchemy  # type: ignore
+
 
 load_dotenv()
 

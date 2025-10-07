@@ -12,8 +12,8 @@ def create_doc(file: UploadFile = File(...), user = Depends(get_current_user),db
 
 
 @router.get("/search")
-def search(q: str = Query(...), user = Depends(get_current_user)):
-    return search_query(q, user)
+def search(q: str = Query(...), user = Depends(get_current_user), db: Session = Depends(get_db)):
+    return search_query(q, user,db)
 
 @router.get("/ask")
 def ask(q: str = Query(...), user = Depends(get_current_user), db: Session = Depends(get_db)):

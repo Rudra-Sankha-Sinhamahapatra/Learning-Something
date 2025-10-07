@@ -3,11 +3,13 @@ from app.agents.reasoning_agent import create_retrieval_graph, init_state
 from app.models.base import Document
 import uuid
 from datetime import datetime
+from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.core.llm import get_groq_llm
+from app.core.file_parser import extract_text_from_file
 
 def upload_document(file, user, db: Session):
-    content = file.file.read().decode("utf-8")
+    content = extract_text_from_file(file.file, file.filename)
     embedding = embed_text(content)
     doc = Document(
         id=uuid.uuid4(), 
@@ -26,15 +28,25 @@ def upload_document(file, user, db: Session):
 
 def search_query(q: str, user,db: Session):
     q_emb = embed_text(q)
-    results = db.query(Document).filter(Document.user_id == user.id).order_by(Document.embedding.distance(q_emb)).limit(5).all()
+    stmt = text("""
+    SELECT id, title, content
+    FROM documents
+    WHERE user_id = :uid
+    ORDER BY embedding <-> (:query_vec)::vector
+    LIMIT 5;
+""")
+
+    results = db.execute(stmt, {"uid": user.id, "query_vec": q_emb}).fetchall()
+
     llm = get_groq_llm()
     context = "\n\n".join([r.content for r in results])
     answer = llm.invoke([{"role": "user", "content": f"Given these documents:\n{context}\nAnswer: {q}"}])
     return {"answer": answer.content, "sources": [str(r.id) for r in results]}
 
 def run_langgraph_query(query: str, user,db: Session):
-    graph = create_retrieval_graph()
+    graph_builder = create_retrieval_graph(db)
+    graph = graph_builder.compile()
     state = init_state(query, user.id)
-    result = graph.run(state, db=db)
+    result = graph.invoke(state)
     db.close()
     return {"answer": result["answer"], "sources": [r.title for r in result["docs"]]}

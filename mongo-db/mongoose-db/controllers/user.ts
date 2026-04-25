@@ -109,3 +109,24 @@ export const getUsersWithPosts = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const addSalaryInLPAField = async (_: Request, res: Response) => {
+    try {
+      const result = await User.updateMany(
+        {},
+        [
+          {
+            $set: {
+              salaryInLPA: { $divide: ["$salary", 100000] }
+            }
+          }
+        ],
+        { updatePipeline: true }
+      );
+  
+      return res.status(200).json({ message: "Field added", result });
+    } catch (error) {
+        console.error("Error adding salary in LPA field:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };

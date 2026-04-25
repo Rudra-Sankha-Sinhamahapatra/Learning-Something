@@ -79,3 +79,33 @@ export const getTopSkills = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const getUsersWithPosts = async (req: Request, res: Response) => {
+    try {
+        const result = await User.aggregate([
+            {
+                $lookup: {
+                    from: "posts",
+                    localField: "_id",
+                    foreignField: "userId",
+                    as: "posts",
+                }
+            },
+
+            {
+                $project: {
+                    name: 1,
+                    postCount: { $size: "$posts" },
+                }
+            },
+
+            {
+                $sort: { postCount: -1 },
+            }
+        ]);
+
+        return res.status(200).json(result);
+    } catch (error) {
+        return res.status(500).json({ message: "Internal server error" });
+    }
+}
